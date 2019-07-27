@@ -19,15 +19,15 @@ class joint(object):
         self.depth = depth
         self.width = width 
         self.height = height
-        #self.joint_90lap = []
         self.update_joint() #method
+        self.joints = []
 
     def update_joint(self):
-        return self.joint_90lap()
+        self.joint_90lap()
 
     def joint_90lap(self):
         bool_joint = Box(self.frame, self.depth, self.width, self.height)
-        return bool_joint
+        self.joints.append(bool_joint)
 
 #======================================
 #Input geometry for test
