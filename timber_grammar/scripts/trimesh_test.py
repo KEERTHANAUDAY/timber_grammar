@@ -5,11 +5,12 @@ import trimesh as t
 # DATA = os.path.abspath(os.path.join(HERE, '..', 'trimesh_1.obj'))
 
 
-mesh_list = t.load_mesh('./scripts/trimesh_2.obj')
-mesh_list_2 = t.load_mesh('./scripts/trimesh_1.obj')
+mesh_1 = t.load_mesh('./scripts/trimesh_2.obj')
+mesh_2 = t.load_mesh('./scripts/trimesh_1.obj')
 
-a = mesh_list.difference(mesh_list_2, 'blender')
+a = mesh_1.difference(mesh_2, 'blender')
 
+mesh_list.difference()
 print (a)
 
 #t.boolean.boolean_automatic(mesh,'difference')
