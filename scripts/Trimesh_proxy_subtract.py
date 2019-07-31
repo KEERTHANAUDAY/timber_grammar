@@ -63,8 +63,8 @@ if __name__ == '__main__':
     box_mesh_2 = Mesh.from_vertices_and_faces(box_2.vertices, box_2.faces)
 
     mesh = Trimesh_proxy_subtract(box_mesh, box_mesh_2)
-    b = mesh.mesh
-    print(type(b))
+    a = mesh.mesh
+    print(type(mesh))
 
 
         
