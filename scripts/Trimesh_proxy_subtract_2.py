@@ -69,8 +69,8 @@ if __name__ == '__main__':
 
     #call function
     mesh = Trimesh_proxy_subtract(box_mesh, box_mesh_2)
-    a = mesh.mesh
-    print(type(a))
+    b = mesh.mesh
+    print(type(b))
 
 
         
