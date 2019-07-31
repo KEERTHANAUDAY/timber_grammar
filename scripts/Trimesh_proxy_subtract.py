@@ -47,7 +47,7 @@ class Trimesh_proxy_subtract(object):
         boolean_sub = mesh_1.difference(mesh_2,'blender')
         boolean_mesh = Mesh.from_vertices_and_faces(boolean_sub.vertices, boolean_sub.faces)
         self.mesh = boolean_mesh
-        return boolean_mesh
+        
 
 
 if __name__ == '__main__':
@@ -63,7 +63,8 @@ if __name__ == '__main__':
     box_mesh_2 = Mesh.from_vertices_and_faces(box_2.vertices, box_2.faces)
 
     mesh = Trimesh_proxy_subtract(box_mesh, box_mesh_2)
-    print(mesh)
+    a = mesh.mesh
+    print(type(mesh))
 
 
         
