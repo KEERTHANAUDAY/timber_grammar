@@ -6,13 +6,6 @@
     "configurations": [
         
         {
-            "name": "Python: Terminal (none)",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "none"
-        },
-        {
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",
