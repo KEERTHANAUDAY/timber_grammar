@@ -1,7 +1,7 @@
 import compas 
 from compas.datastructures import Mesh
 from compas.rpc import Proxy
-t = Proxy('trimesh')
+
 
 class Trimesh_proxy_subtract(object):
     """
@@ -33,7 +33,6 @@ class Trimesh_proxy_subtract(object):
         ____
         The beam_mesh is updated with the new mesh
         """
-
         #constructing Trimesh from compas mesh
         mesh1_v = self.beam_mesh.to_vertices_and_faces()[0]
         mesh1_f = self.beam_mesh.to_vertices_and_faces()[1]  
@@ -41,10 +40,14 @@ class Trimesh_proxy_subtract(object):
         mesh2_v = self.joint_mesh.to_vertices_and_faces()[0]
         mesh2_f = self.joint_mesh.to_vertices_and_faces()[1]
 
-        mesh_1 = t.Trimesh(vertices=mesh1_v, faces=mesh1_f, process=False)
-        mesh_2 = t.Trimesh(vertices=mesh2_v, faces=mesh2_f, process=False)
+        #boolean_sub = None
 
-        boolean_sub = mesh_1.difference(mesh_2,'blender')
+        with Proxy('trimesh') as t:
+            
+            mesh_1 = t.Trimesh(vertices=mesh1_v, faces=mesh1_f, process=False)
+            #mesh_2 = t.Trimesh(vertices=mesh2_v, faces=mesh2_f, process=False)
+            #boolean_sub = mesh_1.difference(mesh_2,'blender')
+
         boolean_mesh = Mesh.from_vertices_and_faces(boolean_sub.vertices, boolean_sub.faces)
         self.mesh = boolean_mesh
         
@@ -63,8 +66,8 @@ if __name__ == '__main__':
     box_mesh_2 = Mesh.from_vertices_and_faces(box_2.vertices, box_2.faces)
 
     mesh = Trimesh_proxy_subtract(box_mesh, box_mesh_2)
-    a = mesh.mesh
-    print(type(mesh))
+    b = mesh.mesh
+    print(type(b))
 
 
         

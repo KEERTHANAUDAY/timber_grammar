@@ -1,8 +1,8 @@
 import compas 
 from compas.datastructures import Mesh
 from compas.rpc import Proxy
+from compas.datastructures import mesh_quads_to_triangles
 import trimesh
-
 
 class Trimesh_proxy_subtract(object):
     """
@@ -36,6 +36,9 @@ class Trimesh_proxy_subtract(object):
         """
 
         #constructing Trimesh from compas mesh
+        # tri_beam = mesh_quads_to_triangles(self.beam_mesh)
+        # tri_joint = mesh_quads_to_triangles(self.joint_mesh)
+
         mesh1_v = self.beam_mesh.to_vertices_and_faces()[0]
         mesh1_f = self.beam_mesh.to_vertices_and_faces()[1]  
 
@@ -56,21 +59,28 @@ class Trimesh_proxy_subtract(object):
 
 if __name__ == '__main__':
     import compas 
+    import os
     from compas.geometry import Frame
     from compas.geometry import Box 
     from compas.datastructures import Mesh
- 
+
+    #exporting file 
+    HERE = os.path.dirname(__file__)
+    DATA = os.path.abspath(os.path.join(HERE, '..', 'data'))
+    FILE_O = os.path.join(DATA, 'compas_boolean_test_2.json')
+
     #construct the mesh
     box = Box(Frame.worldXY(),500,100,100)
     box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces)
 
-    box_2 = Box(([250,-50,-50], [300,0,0], [0,100,0]), 100, 100, 200)
+    box_2 = Box(([250,20,20], [300,0,100], [0,100,0]), 100, 50, 80)
     box_mesh_2 = Mesh.from_vertices_and_faces(box_2.vertices, box_2.faces)
 
     #call function
     mesh = Trimesh_proxy_subtract(box_mesh, box_mesh_2)
-    a = mesh.mesh
-    print(type(a))
+    b = mesh.mesh
+    b.to_json(FILE_O, pretty=True)
+    print(b)
 
 
         

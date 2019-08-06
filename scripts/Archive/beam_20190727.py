@@ -62,6 +62,7 @@ class Beam(object):
         translates the boolean geometry to the desired position
         """
         #get face attributes 
+        
         vertices_id = self.beam_mesh.face_vertices(self.face_id)
         f_vertices = [] #vertices of the selected face
         for key in vertices_id:
