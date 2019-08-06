@@ -3,11 +3,18 @@ import compas
 from compas.geometry import Box
 from compas.datastructures import Mesh
 from Joint import Joint
+
 from Trimesh_proxy_subtract_2 import Trimesh_proxy_subtract
 import json
 
 class Beam():
     """ Beam class contains joint matching and operations 
+=======
+import json
+
+class Beam():
+    """ Beam class containing its size and connecting dowels
+
     """
 
     def __init__(self, frame, length, width, height):
@@ -162,7 +169,11 @@ class Beam():
 
         self.mesh = self.draw_uncut_mesh()
         for joint in self.joints:
+
             self.mesh = Trimesh_proxy_subtract(self.mesh,joint.mesh)
+=======
+            self.mesh = trimesh_proxy_subtract(self.mesh,joint.mesh)
+
         return self.mesh
 
 
@@ -180,6 +191,7 @@ class Beam():
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         return box_mesh
 
+
     def trimesh_proxy_subtract(self,mesh_a,mesh_b):
         """Computes and returns booleaned beams through proxy class
 
@@ -190,6 +202,10 @@ class Beam():
         """
         beam_boolean = Trimesh_proxy_subtract(mesh_a, mesh_b)
         return beam_boolean
+
+    def trimesh_proxy_subtract(mesh_a,mesh_b):
+        return mesh_a
+
         ### This is not implemented yet
         
 
