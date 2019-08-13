@@ -1,15 +1,22 @@
+
 import math
 import compas
 from compas.geometry import Box
 from compas.datastructures import Mesh
+from compas.datastructures import mesh_bounding_box
+from id_generator import create_id
 from Joint import Joint
 import json
+
+from compas.rpc import Proxy
+import sys
+python_exe_path = sys.executable
 
 class Beam():
     """ Beam class containing its size and connecting dowels
     """
 
-    def __init__(self, frame, length, width, height):
+    def __init__(self, frame, length, width, height,name):
         """ initialization
 
             :frame:           base plane for the beam 
@@ -22,6 +29,7 @@ class Beam():
         self.length = length 
         self.width = width
         self.height = height 
+        self.name = name
         self.mesh = None
         self.joints = []
         
@@ -40,13 +48,15 @@ class Beam():
         * 'height'          => double
         * 'mesh'            => dict of compas.mesh.to_data()
         * 'joints'          => list of dict of Joint.to_data()
+        * 'name'            => UUID for very instance
         """
         data = {
             'type'      : self.__class__.__name__, #Keep this line for deserialization
             'frame'     : None if (self.frame is None) else self.frame.to_data(),
-            'length'     : self.length,
+            'length'    : self.length,
             'width'     : self.width,
             'height'    : self.height,
+            'name'      : self.name,
             'mesh'      : None if (self.mesh is None) else self.mesh.to_data(),
             'joints'    : [joint.to_data() for joint in self.joints]
             }
@@ -59,6 +69,7 @@ class Beam():
         self.depth      = data.get('depth') or None
         self.width      = data.get('width') or None
         self.height     = data.get('height') or None
+        self.name       = data.get('name') or None
         self.mesh       = None if data.get('mesh') is None else compas.datastructures.Mesh.from_data(data.get('mesh')) or None
         for joint_data in data.get('joints') :
             self.joints.append(Joint.from_data(joint_data))
@@ -82,10 +93,10 @@ class Beam():
         corresponding *to_data* method.
 
         """
-        new_object = cls(None,None,None,None) # Only this line needs to be updated
+        new_object = cls(None,None,None,None,None) # Only this line needs to be updated
         new_object.data = data
         if new_object.mesh is None:
-            new_object.update_joint_mesh()
+            new_object.update_mesh()
         return new_object
     
     def to_data(self):
@@ -152,7 +163,7 @@ class Beam():
         Returns
         -------
         compas.datastructures.Mesh
-            The beam mesh with joint geoemtry removed
+        The beam mesh with joint geoemtry removed
 
         Note
         ----------
@@ -161,9 +172,8 @@ class Beam():
 
         self.mesh = self.draw_uncut_mesh()
         for joint in self.joints:
-            self.mesh = trimesh_proxy_subtract(self.mesh,joint.mesh)
+            self.mesh =self.trimesh_proxy_subtract(self.mesh,joint.mesh)
         return self.mesh
-
 
     
     def draw_uncut_mesh(self):
@@ -172,7 +182,7 @@ class Beam():
         Returns
         -------
         compas.datastructures.Mesh
-            The beam mesh without joint geoemtry
+        The beam mesh without joint geoemtry
 
         '''
         box = Box(self.frame, self.length,self.width,self.height)
@@ -180,20 +190,28 @@ class Beam():
         return box_mesh
 
     def trimesh_proxy_subtract(mesh_a,mesh_b):
-        return mesh_a
-        ### This is not implemented yet
+        with Proxy(package='Trimesh_proxy',python=python_exe_path) as f:
+            result = f.trimesh_subtract(mesh_a.mesh, mesh_b.mesh)
+            result_mesh = Mesh.from_data(result['value'])
+        return result_mesh
+
         
-
 if __name__ == '__main__':
-
+    #test for data
     import compas
     from compas.datastructures import Mesh
     from compas.geometry._primitives import Frame
     from compas.geometry._primitives.box import Box
-    
+    from Joint_90lap import Joint_90lap
+    from id_generator import create_id
+
+    name = create_id()
+
     #Create Beam object
-    beam = Beam(Frame.worldXY(),1000,100,150)
-    
+    beam = Beam(Frame.worldXY(),1000,100,150,name)
+    # instance check
+    test_1 = Beam(None, None, None, None, )
+    test_1.joints.append(Joint_90lap(joint_frame,3,50,100,100))
     #Create some joints on the beam
     from Joint_90lap import Joint_90lap 
     from compas.geometry._primitives import Frame
@@ -201,7 +219,7 @@ if __name__ == '__main__':
     from compas.geometry import Translation
     joint_frame = beam.frame.transformed(Translation([200,0,0]))
     beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-
+    
     #Save Beam to Json
     print(beam)
     print(beam.data)
