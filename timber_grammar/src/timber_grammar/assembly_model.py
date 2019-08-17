@@ -120,13 +120,28 @@ class Model(object):
     def create_beam(self, frame, depth, width, height,name):
         self.new_beam = Beam(frame, depth, width, height,name)
         self.beams.append(self.new_beam)
-        return self.new_beam 
+        return self.new_beam.mesh
         
-    def rule_90lap(self,beam_to_match,face_id,distance):
-        pass
+    # def rule_90lap(self,beam_to_match,face_id,distance):
+    def rule_90lap(self,beam_object,joint_frame,face_id):
 
-        #create and append joint to Beam.Joints[]
+        #implement if or assert checks to make sure the face is right
+
+        beam_object.joints.append(Joint_90lap(joint_frame,1,100,100,50))
+        print("look here", beam_object)
+        self.test = beam_object.update_mesh()
+        print("look here", beam_object)
+        print("look here", beam_object.mesh)
+
+        # print(type("look here", self.beam_cut_mesh))
+        self.beams.append(beam_object)
+        return self.test
+
+        # joint = Beam.joints.append(Joint_90lap(joint_frame,face_id, 50, 100, 100))
+        # cut_beam = Beam.draw_cut_mesh(beam_mesh)
+
         #update mesh
+        
 
     
     def create_beam_match(self,beam_to_match,face_id,extension,distance):  
@@ -194,6 +209,7 @@ if __name__ == '__main__':
     else:
         print("Incorrect")
     
+
     # m = Model()
     # m.create_beam(Frame.worldXY(),10,20,30,name)
     # #t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))

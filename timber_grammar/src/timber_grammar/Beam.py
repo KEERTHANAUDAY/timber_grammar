@@ -15,7 +15,7 @@ class Beam(object):
     """ Beam class creates beams and performs booleans(called through trimesh proxy)
     """
 
-    def __init__(self, frame, length, width, height,name):
+    def __init__(self, frame, length, width, height, name):
         """ initialization
 
             :frame:           base plane for the beam 
@@ -193,10 +193,16 @@ class Beam(object):
         The beam mesh without joint geoemtry
 
         '''
-        print(self.frame, self.length,self.width,self.height)
+ 
         box = Box(self.frame, self.length,self.width,self.height)
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         return box_mesh
+
+    def draw_cut_match_mesh(self,match_beam_mesh):
+
+        for joint in self.joints:
+            self.mesh = self.trimesh_proxy_subtract(match_beam_mesh,joint.mesh)
+        return self.mesh
 
     @classmethod #hence does not rely on the instance of the Beam class, inout of the type is enough
     def trimesh_proxy_subtract(cls,mesh_a,mesh_b):
@@ -227,11 +233,11 @@ if __name__ == '__main__':
     #Create Beam object
     beam = Beam(Frame.worldXY(),1000,100,150,name)
 
-    #Create some joints on the beam
-    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-    from compas.geometry import Translation
-    joint_frame = beam.frame.transformed(Translation([200,0,0]))
-    beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
+    # #Create some joints on the beam
+    # beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
+    # from compas.geometry import Translation
+    # joint_frame = beam.frame.transformed(Translation([200,0,0]))
+    # beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
     
     #Update mesh - Boolean the joints from Mesh
     beam.update_mesh() 
@@ -253,4 +259,8 @@ if __name__ == '__main__':
         print("Correct") 
     else:
         print("Incorrect")
-        
+    
+    print(loaded_beam.data)
+
+#    out_test = beam.from_data(loaded_beam.data)
+#    print(out_test.mesh)

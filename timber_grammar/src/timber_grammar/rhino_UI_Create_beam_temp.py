@@ -24,7 +24,7 @@ def RunCommand( is_interactive ):
     model.to_json("create_beam.json", pretty = True)
     
     #mesh artist
-    artist = MeshArtist(beam.mesh, layer ='BEAM::CreateBeam')#.mesh is not ideal
+    artist = MeshArtist(beam, layer ='BEAM::CreateBeam')#.mesh is not ideal fix in beam and assemble class
     artist.clear_layer()
     artist.draw_faces(join_faces=True)
     artist.redraw()

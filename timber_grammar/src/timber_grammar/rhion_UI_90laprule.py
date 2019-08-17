@@ -1,4 +1,6 @@
 import rhinoscriptsyntax as rs
+import scriptcontext as sc
+import Rhino
 import System
 import compas
  
@@ -10,6 +12,21 @@ import Beam as b
 
 from compas_rhino.artists import MeshArtist
 from compas_rhino.artists import Artist
+
+
+def Get_CrvPlusPointOnCurve(msg):
+        #gets Mesh edge
+        go = Rhino.Input.Custom.GetObject()
+        go.SetCommandPrompt(msg)
+        go.GeometryFilter = Rhino.DocObjects.ObjectType.MeshEdge
+        go.SubObjectSelect = True
+        go.GroupSelect = False
+        go.AcceptNothing(False)
+        if go.Get()!=Rhino.Input.GetResult.Object: return
+        objref = go.Object(0)
+        point = objref.SelectionPoint()
+        go.Dispose()
+        return point
 
 #def rule_create_beam():
 #    model.load_beams()
