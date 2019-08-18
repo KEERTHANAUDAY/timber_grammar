@@ -27,7 +27,7 @@ def Get_PointOnCurve(msg):
     go.GeometryFilter = Rhino.DocObjects.ObjectType.MeshEdge
     go.SubObjectSelect = True
     go.GroupSelect = False
-    go.AcceptNothing(False)
+    go.AcceptNothing(True)
     if go.Get()!=Rhino.Input.GetResult.Object: return
     objref = go.Object(0)
     point = objref.SelectionPoint()
@@ -48,80 +48,44 @@ def selectmeshface():
     
 def RunCommand(is_interactive):
     #load model
-    model = Model()
-    load = model.from_json("check_3.json")
+    model = Model.from_json("test_18.json")
 
     #select beambrhino way
     Obj_ref = rs.GetObject(message = "select mesh(es)", filter = 32, preselect = False, subobjects = True)
-    Object_name = rs.ObjectName(Obj_ref)
-    test = Object_name[:-5]
-    
-    #select face & point(face needs to be implemented through UI)
+    selected_beam_name = (rs.ObjectName(Obj_ref)[:-5])
+    #Loop through all beams in model to identify the selected beam
+    selected_beam = None
+    for beam in model.beams:
+        if(beam.name == selected_beam_name):
+            selected_beam = beam
+            break
+    assert (selected_beam != None)
+
+    #list of user inputs(face needs to be implemented through UI)
     face_id = rs.GetInteger("face_id",1,None,None)
     joint_pt = Get_PointOnCurve("Select joint position")
-    
-    #Match beam extension 
     extension = rs.GetReal("Enter Extension Length(Real)",200,None,None)
-   
-    #finding iteration
-    data_dict = []
-    for key,value in load.data.items():
-        if key == 'beams':
-           for dict in value:
-             for key,value in dict.items():
-                if value == test:
-                    print(value)
-                    print(test)
-                    data_dict.append(dict)
-    for i in range(len(data_dict)):
-        if i>1:
-            BeamRef = Beam.from_data(data_dict[-1]) #this is the beam
-        else:
-            BeamRef = Beam.from_data(data_dict[0])
-                       
-                    
 
-    #finding information from dict optimize this 
-    for key,value in BeamRef.data.items():
-        if key == 'frame':
-            for key,value in value.items():
-                    if key == 'yaxis':
-                        y = value
-                        print(y)
-                    elif key == 'xaxis':
-                        x = value
-  
-    #90_lap boolean from assembly model
-    m_beam = Model()
-    joint_frame = Frame(joint_pt, x, y)
-    beam_90_lap = m_beam.rule_90lap(BeamRef,joint_frame,1)
-    
-    #Creating Match beam 
-    frame1 = Frame(joint_pt, x, y)
-    frame2 = Frame(joint_pt, x, y)
-    #translate frame position
-    match_beam_joint_fame = frame2.transformed(Translation([0,50,0]))
-    match_beam_frame = frame1.transformed(Translation([0,0,-(BeamRef.length+extension)/2]))
-    test = m_beam.create_beam(match_beam_frame,BeamRef.width,(BeamRef.height),(BeamRef.length+extension),create_id())
-    #Match beam boolean 
-    matchbeam_90_lap = m_beam.rule_90lap(test,match_beam_joint_fame,1)
-    print(test)
+    #create_match_beam
+    match_beam_frame = Frame(joint_pt,selected_beam.frame.xaxis, selected_beam.frame.yaxis)
+    match_beam_frame_T = match_beam_frame.transformed(Translation([0,0,-(selected_beam.length+extension)/2]))
+    match_beam = model.create_beam(match_beam_frame_T,selected_beam.width,selected_beam.height,selected_beam.length,create_id())
+
+    #adding joints
+    model.rule_90lap(selected_beam,joint_pt,face_id)
+    model.rule_90lap(match_beam,joint_pt,3)
 
     #serialize data
-    m_beam.to_json("check_3.json", pretty = True)
-
-    #test visualizations
-    artist = MeshArtist(beam_90_lap, layer ='BEAM::CreateJointGeo')#.mesh is not ideal fix in beam and assemble class
+    model.to_json("test_18.json", pretty = True)
+  
+    artist = MeshArtist(None, layer ='BEAM::Beams_out')
     artist.clear_layer()
-    artist.draw_faces(join_faces=True)
-    artist.redraw()
-
-    artist2 = MeshArtist(matchbeam_90_lap, layer ='BEAM::CreatMatchBeam')#.mesh is not ideal fix in beam and assemble class
-#    artist2.clear_layer()
-    artist2.draw_faces(join_faces=True)
-    artist2.redraw()
-
-
+    for beam in model.beams:
+        #test visualizations
+        print(beam.name)
+        artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
+        artist.draw_faces(join_faces=True)
+        artist.draw_vertices()
 
 if __name__ == '__main__':
-    RunCommand(True)    
+    RunCommand(True) 

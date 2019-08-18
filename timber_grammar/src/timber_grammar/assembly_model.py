@@ -123,30 +123,29 @@ class Model(object):
         return self.new_beam#.mesh was removed
         
     # def rule_90lap(self,beam_to_match,face_id,distance):
-    def rule_90lap(self,beam_object,joint_frame,face_id):
+    def rule_90lap(self,beam,position_pt,face_id):
 
-        #implement if or assert checks to make sure the face is right
-        beam_object.joints.append(Joint_90lap(joint_frame,1,100,100,50))
-        beam_90lap_mesh = beam_object.update_mesh()
-        self.beams.append(beam_object)
-        return beam_90lap_mesh
-
-    # def match_90lap(self,beam_frame):
-    #     Beam.joints.append(Joint_90lap(beam_frame,1,100,100,50))
-
-
-
-
-
-
-
-        # joint = Beam.joints.append(Joint_90lap(joint_frame,face_id, 50, 100, 100))
-        # cut_beam = Beam.draw_cut_mesh(beam_mesh)
-
-        #update mesh
+        if face_id == 1:
+            joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
+            beam.joints.append(Joint_90lap(joint_frame,face_id,100,100,50))
+            beam.update_mesh()
+        elif face_id == 3:
+            joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
+            joint_frame_T = joint_frame.transformed(Translation([0,50,0]))
+            beam.joints.append(Joint_90lap(joint_frame_T,face_id,100,100,50))
+            beam.update_mesh()
+        else:
+            pass
+        
         
 
-    
+        #implement if or assert checks to make sure the face is right
+        # beam_object.joints.append(Joint_90lap(joint_frame,face_id,100,100,50))
+        # beam_object.update_mesh()
+        # self.beams.append(beam_object)
+        # return beam_90lap_mesh
+
+  
     def create_beam_match(self,beam_to_match,face_id,extension,distance):  
         pass   
 

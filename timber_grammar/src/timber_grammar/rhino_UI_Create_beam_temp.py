@@ -16,18 +16,19 @@ def RunCommand( is_interactive ):
     #how to get direction of beam?does it matter?
     if plane: frame=(rs.PlaneFromPoints(plane[0], plane[1], plane[3]))
     beam_frame = Frame(frame[0],frame[1],frame[3])
-    length = rs.GetReal("length",1000,300,None)
+    length = rs.GetReal("length",4000,300,None)
     name = create_id()
-    
+ 
     model = Model()
-    beam = model.create_beam(Frame.worldXY(),1000,100,100,name)
-    model.to_json("create_beam.json", pretty = True)
+    model.create_beam(Frame.worldXY(),length,100,100,name)
+    model.to_json("test_18.json", pretty = True)
     
     #mesh artist
-    artist = MeshArtist(beam.mesh, layer ='BEAM::CreateBeam')#.mesh is not ideal fix in beam and assemble class
-    artist.clear_layer()
-    artist.draw_faces(join_faces=True)
-    artist.redraw()
+    for beam in model.beams:
+        artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
+        artist.clear_layer()
+        artist.draw_faces(join_faces=True)
+        artist.redraw()
     
     return 0
 
