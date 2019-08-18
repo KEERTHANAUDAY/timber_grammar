@@ -23,7 +23,7 @@
             "length": 1000, 
             "mesh": {
                 "attributes": {
-                    "name": "6b191921-c114-11e9-ba39-b9299e7c866c"
+                    "name": "c44ac2a1-c1a5-11e9-b4a7-35b8d932755d"
                 }, 
                 "dea": {}, 
                 "dfa": {}, 
@@ -124,7 +124,7 @@
                     }
                 }
             }, 
-            "name": "6b191921-c114-11e9-ba39-b9299e7c866c", 
+            "name": "c44ac2a1-c1a5-11e9-b4a7-35b8d932755d", 
             "type": "Beam", 
             "width": 100
         }
