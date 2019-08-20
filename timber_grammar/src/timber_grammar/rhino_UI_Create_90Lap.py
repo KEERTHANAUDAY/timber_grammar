@@ -17,32 +17,39 @@ from Joint_90lap import Joint_90lap
 from Beam import Beam
 from id_generator import create_id
 import os
+import math
 
 __commandname__ = "Create_90Lap"
 
-def Get_PointOnCurve(msg):
+def Get_SelectPointOnMeshEdge(message_0,message_1):
     #gets Mesh edge
     go = Rhino.Input.Custom.GetObject()
-    go.SetCommandPrompt(msg)
+    go.SetCommandPrompt(message_0)
     go.GeometryFilter = Rhino.DocObjects.ObjectType.MeshEdge
     go.SubObjectSelect = True
     go.GroupSelect = False
-    if go.Get()!=Rhino.Input.GetResult.Object: return
+    go.AcceptNothing(True)
+    if go.Get()!= Rhino.Input.GetResult.Object: return
     objref = go.Object(0)
-    point = objref.SelectionPoint()
-    go.Dispose()
-    return point
-
-def Get_PointDistanceFromOriginFace(BeamRef,pts_toproject):
-
-    dir_vec = BeamRef.frame.xaxis 
-    ray = Rhino.Geometry.Ray3d(pts_toproject, dir_vec)
-    lineLength = Rhino.Geometry.Intersect.Intersection.MeshRay(BeamRef,ray)
-    if lineLength >= 0:
-        distance = lineLength
-    return distance
-
-
+    #get edge index
+    index=objref.GeometryComponentIndex.Index
+    #get mesh parent
+    mesh=objref.Mesh()
+    #get line representing mesh edge
+    edge_line=mesh.TopologyEdges.EdgeLine(index)
+    edge_point = edge_line[0]
+    print(type(edge_point.X))
+    #start a get point constrained to edge line
+    gp = Rhino.Input.Custom.GetPoint()
+    gp.SetCommandPrompt(message_1)
+    gp.Constrain(edge_line)
+    get_rc = gp.Get()
+    placed_point = rs.coerce3dpoint(sc.doc.Objects.AddPoint(gp.Point()))
+    sc.doc.Views.Redraw()
+    #The distance brom edgeline[0] to pickedpoint is calcuated here 
+    distance = math.sqrt((placed_point.X - edge_point.X)**2 + (placed_point.Y - edge_point.Y)**2 + (placed_point.Z - edge_point.Z)**2)
+    return distance 
+    
 def selectmeshface():
     go = Rhino.Input.Custom.GetObject()
     go.GeometryFilter=Rhino.DocObjects.ObjectType.MeshFace
@@ -53,7 +60,6 @@ def selectmeshface():
     go.Dispose()
     return face_guid 
 
-    
 def RunCommand(is_interactive):
     #load model
     model = Model.from_json("test_18.json")
@@ -70,18 +76,20 @@ def RunCommand(is_interactive):
     assert (selected_beam != None)
 
     #list of user inputs(face needs to be implemented through UI)
-    face_id = rs.GetInteger("face_id",1,None,None)
-    joint_pt = Get_PointOnCurve("Select joint position")
-    extension = rs.GetReal("Enter Extension Length(Real)",200,None,None)
+    face_id = rs.GetInteger("face_id",None,0,5)
+    joint_dist = Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
+    extension = rs.GetReal("Enter Extension Length up/left",100,None,None)
+    extension = rs.GetReal("Enter Extension Length down/right",100,None,None)
 
     #create_match_beam # has to be derived from beam frame
-    match_beam_frame = Frame(joint_pt,selected_beam.frame.xaxis, selected_beam.frame.yaxis)
-    match_beam_frame_T = match_beam_frame.transformed(Translation([0,0,-(selected_beam.length+extension)/2]))
-    match_beam = model.create_beam(match_beam_frame_T,selected_beam.width,selected_beam.height,selected_beam.length,create_id())
+    # match_beam_frame = Frame(joint_pt,selected_beam.frame.xaxis, selected_beam.frame.yaxis)
+    # match_beam_frame_T = match_beam_frame.transformed(Translation([0,0,-(selected_beam.length+extension)/2]))
+    # match_beam = model.create_beam(match_beam_frame_T,selected_beam.width,selected_beam.height,selected_beam.length,create_id())
 
     #adding joints
-    model.rule_90lap(selected_beam,joint_pt,face_id)
-    model.rule_90lap(match_beam,joint_pt,3)
+
+    model.rule_90lap(selected_beam,joint_dist,face_id)
+    # model.rule_90lap(match_beam,joint_pt,3)
 
     #serialize data
     model.to_json("test_18.json", pretty = True)

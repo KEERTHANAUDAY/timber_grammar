@@ -4,9 +4,8 @@ from compas.geometry import Box
 from compas.datastructures import Mesh
 from compas.datastructures import mesh_bounding_box
 from id_generator import create_id
-from compas.geometry._primitives import Frame
-from compas.geometry import add_vectors
-from compas.geometry import subtract_vectors
+from compas.geometry import Frame
+
 from Joint import Joint
 import json
 
@@ -188,34 +187,8 @@ class Beam(object):
         self.mesh.name = self.name
         return self.mesh
 
-    @property
-    def get_Beam_face_Frame(self, BeamRef, face_id):
-        """Returns the frame of the desired face in the beam.
-        Parameters
-        ----------
-        BeamRef : The beam object
 
-        face_id: id(int) of the Beam face
 
-        Returns
-        -------
-        Frame
-            A compas Frame(xaxis,yaxis,zaxis)
-
-        """
-
-        if face_id == 1:
-            face_frame = Frame((add_vectors(BeamRef.frame.point),(0,BeamRef.height,0)),BeamRef.frame.xaxis,BeamRef.frame.normal)
-        elif face_id == 2:
-            face_frame = Frame(subtract_vectors((BeamRef.frame.point),(0,BeamRef.width,0),BeamRef.frame.xaxis,BeamRef.frame.yaxis))
-        elif face_id == 3:
-            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,0,(BeamRef.height/2))),BeamRef.frame.xaxis,BeamRef.frame.yaxis)
-        elif face_id == 4:
-            face_frame = Frame.worldXY()
-        else:
-            print("index out of range")
-
-        return(face_frame)
 
     
     def draw_uncut_mesh(self):

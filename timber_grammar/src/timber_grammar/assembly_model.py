@@ -8,6 +8,8 @@ from compas.geometry import subtract_vectors
 from compas.geometry import Translation
 from compas.geometry import Frame
 from compas.geometry import Transformation
+from compas.geometry import add_vectors
+from compas.geometry import subtract_vectors
 
 class Model(object):
     """This class is an assembly model
@@ -123,39 +125,40 @@ class Model(object):
         return self.new_beam#.mesh was removed
         
     # def rule_90lap(self,beam_to_match,face_id,distance):
-    def rule_90lap(self,BeamRef,face_id):
+    def rule_90lap(self,BeamRef,joint_dist,face_id):
 
-        # this function should just be one line where the join_90Lap actually handles \
-        # all the frame and position calculations 
-        joint_frame = beam.get_Beam_face_Frame(BeamRef,face_id)
-        BeamRef.joints.append(Joint_90lap(joint_frame,100,50,100))
+        joint_face = self.get_Beam_face_Frame(BeamRef,face_id)
+        joint_dist = joint_face.transformed(Translation([joint_dist,0,0]))
+        BeamRef.joints.append(Joint_90lap(joint_dist,face_id,100,50,100))
         BeamRef.update_mesh()
 
-        # if face_id == 1:
-        #     joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
-        #     beam.joints.append(Joint_90lap(joint_frame,face_id,100,50,100))
-        #     beam.update_mesh()
-        # elif face_id == 3:
-        #     joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
-        #     joint_frame_T = joint_frame.transformed(Translation([0,50,0]))
-        #     beam.joints.append(Joint_90lap(joint_frame_T,face_id,100,50,100))
-        #     beam.update_mesh()
-        # else:
-        #     pass
+    def get_Beam_face_Frame(self, BeamRef, face_id):
+        """Returns the frame of the desired face in the beam.
+        Parameters
+        ----------
+        BeamRef : The beam object
 
+        face_id: id(int) of the Beam face
 
-  
-    def create_beam_match(self,beam_to_match,face_id,extension,distance):  
-        pass   
+        Returns
+        -------
+        Frame
+            A compas Frame(xaxis,yaxis,zaxis)
 
-        #input beam + extension length(may be call create_beam)
-        #create joint
-        #update mesh
+        """
+        if face_id == 1:
+            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,BeamRef.height,0)),BeamRef.frame.xaxis,BeamRef.frame.normal)
+        elif face_id == 2:
+            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,(BeamRef.width/2),0)),BeamRef.frame.xaxis,BeamRef.frame.yaxis)
+        elif face_id == 3:
+            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,BeamRef.height,(BeamRef.height/2))),BeamRef.frame.xaxis,BeamRef.frame.normal)
+        elif face_id == 4:
+            face_frame = BeamRef.frame
+        else:
+            print("index out of range")
 
-    def joint_frame(self):
-        #this will perform the frame calculations
-        pass
-
+        return(face_frame)
+ 
     
 
 #    Make a function for joint_frame
@@ -173,43 +176,43 @@ class Model(object):
   
 
  
-if __name__ == '__main__':
-    import compas
-    from compas.datastructures import Mesh
-    from compas.geometry import Frame
-    from compas_rhino.artists import MeshArtist
-    from compas_rhino.artists import Artist
-    from Joint_90lap import Joint_90lap
-    from id_generator import create_id
-    
-    #Create Beam object
-    beam = Beam(Frame.worldXY(),1000,100,150,create_id())
-
-    #Create some joints on the beam
-    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-    from compas.geometry import Translation
-    joint_frame = beam.frame.transformed(Translation([200,0,0]))
-    beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-    
-    #Update mesh - Boolean the joints from Mesh
-    beam.update_mesh()
-
-    #Add beam into model
-    model = Model()
-    model.beams.append(beam)
-
-    #Save and load the model
-    model.to_json("model.json")
-    loaded_model = Model.from_json("model.json")
-    loaded_model.to_json("model2.json")
-
-    print ("Comparing two data dictionary:")
-    assert (model.data == loaded_model.data)
-    if (model.data == loaded_model.data) :
-        print("Correct") 
-    else:
-        print("Incorrect")
-    
+#if __name__ == '__main__':
+#    import compas
+#    from compas.datastructures import Mesh
+#    from compas.geometry import Frame
+#    from compas_rhino.artists import MeshArtist
+#    from compas_rhino.artists import Artist
+#    from Joint_90lap import Joint_90lap
+#    from id_generator import create_id
+#    
+#    #Create Beam object
+#    beam = Beam(Frame.worldXY(),1000,100,150,create_id())
+#
+#    #Create some joints on the beam
+#    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
+#    from compas.geometry import Translation
+#    joint_frame = beam.frame.transformed(Translation([200,0,0]))
+#    beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
+#    
+#    #Update mesh - Boolean the joints from Mesh
+#    beam.update_mesh()
+#
+#    #Add beam into model
+#    model = Model()
+#    model.beams.append(beam)
+#
+#    #Save and load the model
+#    model.to_json("model.json")
+#    loaded_model = Model.from_json("model.json")
+#    loaded_model.to_json("model2.json")
+#
+#    print ("Comparing two data dictionary:")
+#    assert (model.data == loaded_model.data)
+#    if (model.data == loaded_model.data) :
+#        print("Correct") 
+#    else:
+#        print("Incorrect")
+#    
 
     # m = Model()
     # m.create_beam(Frame.worldXY(),10,20,30,name)
