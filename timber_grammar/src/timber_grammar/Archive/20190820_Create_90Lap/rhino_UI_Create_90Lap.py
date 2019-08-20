@@ -33,16 +33,6 @@ def Get_PointOnCurve(msg):
     go.Dispose()
     return point
 
-def Get_PointDistanceFromOriginFace(BeamRef,pts_toproject):
-
-    dir_vec = BeamRef.frame.xaxis 
-    ray = Rhino.Geometry.Ray3d(pts_toproject, dir_vec)
-    lineLength = Rhino.Geometry.Intersect.Intersection.MeshRay(BeamRef,ray)
-    if lineLength >= 0:
-        distance = lineLength
-    return distance
-
-
 def selectmeshface():
     go = Rhino.Input.Custom.GetObject()
     go.GeometryFilter=Rhino.DocObjects.ObjectType.MeshFace
@@ -51,6 +41,7 @@ def selectmeshface():
     objref=go.Object(0)
     face_guid = objref.ObjectId
     go.Dispose()
+    
     return face_guid 
 
     
@@ -74,7 +65,7 @@ def RunCommand(is_interactive):
     joint_pt = Get_PointOnCurve("Select joint position")
     extension = rs.GetReal("Enter Extension Length(Real)",200,None,None)
 
-    #create_match_beam # has to be derived from beam frame
+    #create_match_beam
     match_beam_frame = Frame(joint_pt,selected_beam.frame.xaxis, selected_beam.frame.yaxis)
     match_beam_frame_T = match_beam_frame.transformed(Translation([0,0,-(selected_beam.length+extension)/2]))
     match_beam = model.create_beam(match_beam_frame_T,selected_beam.width,selected_beam.height,selected_beam.length,create_id())

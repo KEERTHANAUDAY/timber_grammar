@@ -123,26 +123,25 @@ class Model(object):
         return self.new_beam#.mesh was removed
         
     # def rule_90lap(self,beam_to_match,face_id,distance):
-    def rule_90lap(self,BeamRef,face_id):
+    def rule_90lap(self,beam,position_pt,face_id):
 
-        # this function should just be one line where the join_90Lap actually handles \
-        # all the frame and position calculations 
-        joint_frame = beam.get_Beam_face_Frame(BeamRef,face_id)
-        BeamRef.joints.append(Joint_90lap(joint_frame,100,50,100))
-        BeamRef.update_mesh()
+        if face_id == 1:
+            joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
+            beam.joints.append(Joint_90lap(joint_frame,face_id,100,50,100))
+            beam.update_mesh()
+        elif face_id == 3:
+            joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
+            joint_frame_T = joint_frame.transformed(Translation([0,50,0]))
+            beam.joints.append(Joint_90lap(joint_frame_T,face_id,100,50,100))
+            beam.update_mesh()
+        else:
+            pass
 
-        # if face_id == 1:
-        #     joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
-        #     beam.joints.append(Joint_90lap(joint_frame,face_id,100,50,100))
-        #     beam.update_mesh()
-        # elif face_id == 3:
-        #     joint_frame = Frame(position_pt,beam.frame.xaxis,beam.frame.yaxis)
-        #     joint_frame_T = joint_frame.transformed(Translation([0,50,0]))
-        #     beam.joints.append(Joint_90lap(joint_frame_T,face_id,100,50,100))
-        #     beam.update_mesh()
-        # else:
-        #     pass
-
+        #implement if or assert checks to make sure the face is right
+        # beam_object.joints.append(Joint_90lap(joint_frame,face_id,100,100,50))
+        # beam_object.update_mesh()
+        # self.beams.append(beam_object)
+        # return beam_90lap_mesh
 
   
     def create_beam_match(self,beam_to_match,face_id,extension,distance):  

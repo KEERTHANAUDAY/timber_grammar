@@ -9,7 +9,7 @@ class Joint_90lap(Joint):
     """
     joint class containing varied joints
     """
-    def __init__(self, frame, length, width, height):
+    def __init__(self, frame, face_id, length, width, height):
 
         """
         :param fame:      plane of boolean geometry
@@ -18,6 +18,7 @@ class Joint_90lap(Joint):
         :param height:     height of boolean geometry
         """
         self.frame = frame
+        self.face_id = face_id
         self.length = length
         self.width = width 
         self.height = height
