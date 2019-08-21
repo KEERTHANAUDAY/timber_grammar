@@ -37,7 +37,7 @@ def Get_SelectPointOnMeshEdge(message_0,message_1):
     mesh=objref.Mesh()
     #get line representing mesh edge
     edge_line=mesh.TopologyEdges.EdgeLine(index)
-    edge_point = edge_line[0]
+    edge_point = edge_line[0 ]
     print(type(edge_point.X))
     #start a get point constrained to edge line
     gp = Rhino.Input.Custom.GetPoint()
@@ -78,19 +78,29 @@ def RunCommand(is_interactive):
     #list of user inputs(face needs to be implemented through UI)
     face_id = rs.GetInteger("face_id",None,0,5)
     joint_dist = Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
-    extension = rs.GetReal("Enter Extension Length up/left",100,None,None)
-    extension = rs.GetReal("Enter Extension Length down/right",100,None,None)
+    ext_a = rs.GetReal("extension_a up/left",None,None,None)
+    ext_b = rs.GetReal("extension_b up/left",None,None,None)
 
     #create_match_beam # has to be derived from beam frame
-    # match_beam_frame = Frame(joint_pt,selected_beam.frame.xaxis, selected_beam.frame.yaxis)
-    # match_beam_frame_T = match_beam_frame.transformed(Translation([0,0,-(selected_beam.length+extension)/2]))
-    # match_beam = model.create_beam(match_beam_frame_T,selected_beam.width,selected_beam.height,selected_beam.length,create_id())
+    create_match_beam = model.return_beam(selected_beam, joint_dist, face_id, ext_a, ext_b,create_id())
 
     #adding joints
 
-    model.rule_90lap(selected_beam,joint_dist,face_id)
-    # model.rule_90lap(match_beam,joint_pt,3)
+    model.rule_90lap (selected_beam,joint_dist,face_id)
+    if face_id == 1:
+        new_id = 3
+    elif face_id == 2:
+        new_id = 4
+    elif face_id == 3:
+        new_id = 1
+    elif face_id == 4:
+        new_id = 2                   
+                
+    model.rule_90lap_return(selected_beam,create_match_beam,joint_dist,new_id)
+    
 
+    
+    
     #serialize data
     model.to_json("test_18.json", pretty = True)
   
@@ -101,7 +111,7 @@ def RunCommand(is_interactive):
         print(beam.name)
         artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
         artist.draw_faces(join_faces=True)
-        artist.draw_vertices()
+
 
 if __name__ == '__main__':
     RunCommand(True) 

@@ -127,12 +127,21 @@ class Model(object):
     # def rule_90lap(self,beam_to_match,face_id,distance):
     def rule_90lap(self,BeamRef,joint_dist,face_id):
 
-        joint_face = self.get_Beam_face_Frame(BeamRef,face_id)
+        joint_face = self.get_Beam_face_Frame_joint(BeamRef,face_id)
         joint_dist = joint_face.transformed(Translation([joint_dist,0,0]))
-        BeamRef.joints.append(Joint_90lap(joint_dist,face_id,100,50,100))
+   
+        BeamRef.joints.append(Joint_90lap(joint_dist,face_id,100,100,50))
         BeamRef.update_mesh()
 
-    def get_Beam_face_Frame(self, BeamRef, face_id):
+    def rule_90lap_return(self,BeamRef,BeamMatch,joint_dist,face_id):
+
+        joint_face = self.get_Beam_face_Frame_joint(BeamRef,face_id)
+        joint_dist = joint_face.transformed(Translation([joint_dist,0,0]))
+   
+        BeamMatch.joints.append(Joint_90lap(joint_dist,face_id,100,100,50))
+        BeamMatch.update_mesh()
+
+    def get_Beam_face_Frame_joint(self, BeamRef, face_id):
         """Returns the frame of the desired face in the beam.
         Parameters
         ----------
@@ -143,22 +152,43 @@ class Model(object):
         Returns
         -------
         Frame
-            A compas Frame(xaxis,yaxis,zaxis)
-
+            A compas Frame(xaxis,yaxis,zaxis) 
         """
         if face_id == 1:
-            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,BeamRef.height,0)),BeamRef.frame.xaxis,BeamRef.frame.normal)
+            face_frame_joint = Frame(add_vectors((BeamRef.frame.point),(0,0,50)),BeamRef.frame.yaxis,BeamRef.frame.xaxis)
         elif face_id == 2:
-            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,(BeamRef.width/2),0)),BeamRef.frame.xaxis,BeamRef.frame.yaxis)
-        elif face_id == 3:
-            face_frame = Frame(add_vectors((BeamRef.frame.point),(0,BeamRef.height,(BeamRef.height/2))),BeamRef.frame.xaxis,BeamRef.frame.normal)
+            face_frame_joint = Frame(add_vectors((BeamRef.frame.point),(0,50,0)),BeamRef.frame.normal,BeamRef.frame.xaxis)
+        elif face_id == 3: 
+            face_frame_joint = Frame(add_vectors((BeamRef.frame.point),(0,0,100)),BeamRef.frame.yaxis,BeamRef.frame.xaxis)
         elif face_id == 4:
-            face_frame = BeamRef.frame
+            face_frame_joint = Frame((BeamRef.frame.point),BeamRef.frame.normal,BeamRef.frame.xaxis)
         else:
             print("index out of range")
-
-        return(face_frame)
+        return(face_frame_joint)
  
+    def return_beam(self,BeamRef, joint_dist, face_id, ext_a, ext_b, name):
+
+        plane = self.get_Beam_face_Frame_joint(BeamRef,face_id)
+        
+        if face_id == 4:
+            match_beam_frame = plane.transformed(Translation([joint_dist,0,-ext_b]))
+        elif face_id == 2:
+            match_beam_frame = plane.transformed(Translation([joint_dist,-50,-ext_b]))
+        elif face_id == 1:
+            match_beam_frame = plane.transformed(Translation([joint_dist,-ext_b,50]))
+        elif face_id == 3:
+            match_beam_frame = plane.transformed(Translation([joint_dist,-ext_b,0]))
+            
+        else:
+            pass
+
+        beam_length = (ext_a + ext_b + 100)
+        
+        match_beam = Beam(match_beam_frame, beam_length, 100, 100, name)
+        self.beams.append(match_beam)
+
+        return match_beam
+
     
 
 #    Make a function for joint_frame
