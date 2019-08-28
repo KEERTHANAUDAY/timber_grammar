@@ -37,7 +37,7 @@ def Get_SelectPointOnMeshEdge(message_0,message_1):
     mesh=objref.Mesh()
     #get line representing mesh edge
     edge_line=mesh.TopologyEdges.EdgeLine(index)
-    edge_point = edge_line[0 ]
+    edge_point = edge_line[0]
     print(type(edge_point.X))
     #start a get point constrained to edge line
     gp = Rhino.Input.Custom.GetPoint()
@@ -78,29 +78,43 @@ def RunCommand(is_interactive):
     #list of user inputs(face needs to be implemented through UI)
     face_id = rs.GetInteger("face_id",None,0,5)
     joint_dist = Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
+    #input for match_beam
     ext_a = rs.GetReal("extension_a up/left",None,None,None)
-    ext_b = rs.GetReal("extension_b up/left",None,None,None)
-
-    #create_match_beam # has to be derived from beam frame
-    create_match_beam = model.return_beam(selected_beam, joint_dist, face_id, ext_a, ext_b,create_id())
+    ext_b = rs.GetReal("extension_b down/right",None,None,None)
+    name = create_id() 
+    if face_id == 4:
+        match_face_id = 3
+    else:
+        pass
 
     #adding joints
+    model.rule_90lap (selected_beam,joint_dist,face_id) 
+    
+    
+    #create_match_beam # has to be derived from beam frame
+    model.match_beam(selected_beam,ext_a,ext_b,name,joint_dist,face_id,match_face_id)
 
-    model.rule_90lap (selected_beam,joint_dist,face_id)
-    if face_id == 1:
-        new_id = 3
-    elif face_id == 2:
-        new_id = 4
-    elif face_id == 3:
-        new_id = 1
-    elif face_id == 4:
-        new_id = 2                   
+    #Match face_id rule 
+#    def get_match_face_id(face_id):
+
+
+
+
+
+    # create_match_beam = model.return_beam(selected_beam, joint_dist, face_id, ext_a, ext_b,create_id())
+
+    
+    # if face_id == 1:
+    #     new_id = 3
+    # elif face_id == 2:
+    #     new_id = 4
+    # elif face_id == 3:
+    #     new_id = 1
+    # elif face_id == 4:
+    #     new_id = 2                   
                 
-    model.rule_90lap_return(selected_beam,create_match_beam,joint_dist,new_id)
-    
-
-    
-    
+    # model.rule_90lap_return(selected_beam,create_match_beam,test_f,new_id)
+   
     #serialize data
     model.to_json("test_18.json", pretty = True)
   

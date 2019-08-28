@@ -74,8 +74,7 @@ class Joint_90lap(Joint):
         if new_object.mesh is None:
             new_object.update_joint_mesh()
         return new_object
-
-
+   
     def update_joint_mesh(self):
         """Compute the negative mesh volume of the joint.
 
@@ -93,9 +92,8 @@ class Joint_90lap(Joint):
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         self.mesh = box_mesh
         return box_mesh
-
-
-        
+    
+         
 if __name__ == "__main__":
 
     #Test to create Joint_90lap object. Serialize and deserialize.

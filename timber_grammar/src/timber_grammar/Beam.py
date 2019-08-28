@@ -17,7 +17,7 @@ class Beam(object):
     """ Beam class creates beams and performs booleans(called through trimesh proxy)
     """
 
-    def __init__(self, frame, length, width, height, name):
+    def __init__(self, frame, length, width, height, name ):
         """ initialization
 
             :frame:           base plane for the beam 
@@ -32,6 +32,7 @@ class Beam(object):
         self.width = width
         self.height = height 
         self.name = name
+        # self.face_frame = None
         self.mesh = None
         self.joints = []
         
@@ -168,6 +169,7 @@ class Beam(object):
                 json.dump(self.data, fp, sort_keys=True, indent=4)
             else:
                 json.dump(self.data, fp)
+
     #Here is where the functions of the class begins
     def update_mesh(self):
         '''Computes the beam geometry with boolean difference of all joints.
@@ -187,10 +189,36 @@ class Beam(object):
         self.mesh.name = self.name
         return self.mesh
 
-
-
-
+    # @property
+    # def face_frame(self):
+    #     print('here we create the face frame')
+    #     return self.face_frame
     
+    # @face_frame.setter
+    # def face_frame(self,face_id):
+    #     if face_id == 4:
+    #         self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
+    #     elif face_id == None:
+    #         break
+    #     return self.face_frame
+
+    # def face_frame(self,face_id):
+    #     if face_id == 4:
+    #         self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
+    #     else:
+    #         pass
+    #     return self.face_frame
+
+    # Here we compute the face_frame of the beam
+    def get_face_frame(self,face_id):
+        if face_id == 4:
+            self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
+        elif face_id == 3:
+            self.face_frame = Frame(self.frame.point, self.frame.yaxis, self.frame.xaxis)
+        else:
+            pass
+        return self.face_frame
+
     def draw_uncut_mesh(self):
         '''Computes and returns the beam geometry.
 
@@ -200,7 +228,6 @@ class Beam(object):
         The beam mesh without joint geoemtry
 
         '''
- 
         box = Box(self.frame, self.length,self.width,self.height)
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         return box_mesh
