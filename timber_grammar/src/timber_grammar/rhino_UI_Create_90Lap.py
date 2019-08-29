@@ -82,39 +82,26 @@ def RunCommand(is_interactive):
     ext_a = rs.GetReal("extension_a up/left",None,None,None)
     ext_b = rs.GetReal("extension_b down/right",None,None,None)
     name = create_id() 
-    if face_id == 4:
-        match_face_id = 3
-    else:
-        pass
+    def get_match_frame(face_id):
+        if face_id == 4:
+            match_face_id = 3
+        elif face_id == 3:
+            match_face_id = 3
+        elif face_id == 2:
+            match_face_id = 1
+        elif face_id == 1:
+            match_face_id = 1#potential error
+        else:
+            pass
+        return match_face_id
 
     #adding joints
+
     model.rule_90lap (selected_beam,joint_dist,face_id) 
-    
-    
+     
     #create_match_beam # has to be derived from beam frame
-    model.match_beam(selected_beam,ext_a,ext_b,name,joint_dist,face_id,match_face_id)
+    model.match_beam(selected_beam,ext_a,ext_b,name,joint_dist,face_id,get_match_frame(face_id))
 
-    #Match face_id rule 
-#    def get_match_face_id(face_id):
-
-
-
-
-
-    # create_match_beam = model.return_beam(selected_beam, joint_dist, face_id, ext_a, ext_b,create_id())
-
-    
-    # if face_id == 1:
-    #     new_id = 3
-    # elif face_id == 2:
-    #     new_id = 4
-    # elif face_id == 3:
-    #     new_id = 1
-    # elif face_id == 4:
-    #     new_id = 2                   
-                
-    # model.rule_90lap_return(selected_beam,create_match_beam,test_f,new_id)
-   
     #serialize data
     model.to_json("test_18.json", pretty = True)
   

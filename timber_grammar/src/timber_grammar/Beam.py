@@ -215,6 +215,10 @@ class Beam(object):
             self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
         elif face_id == 3:
             self.face_frame = Frame(self.frame.point, self.frame.yaxis, self.frame.xaxis)
+        elif face_id == 2:
+            self.face_frame = Frame(self.frame.point, (self.frame.normal*-1), (self.frame.xaxis*-1))
+        elif face_id == 1:
+            self.face_frame = Frame(self.frame.point, self.frame.yaxis, self.frame.xaxis)
         else:
             pass
         return self.face_frame
