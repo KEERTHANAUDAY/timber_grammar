@@ -23,6 +23,16 @@ import math
 __commandname__ = "Create_90Lap"
 
 def Get_SelectPointOnMeshEdge(message_0,message_1):
+    """Performs 90Lap joint boolean operation to beam object:
+    Parameters
+    ----------
+    message_0: First message to user
+    message_1: Second message to user
+
+    Return:
+    ------
+    Point3D 
+    """
     go = Rhino.Input.Custom.GetObject()
     go.SetCommandPrompt(message_0)
     go.GeometryFilter = Rhino.DocObjects.ObjectType.MeshEdge
@@ -44,7 +54,17 @@ def Get_SelectPointOnMeshEdge(message_0,message_1):
     return (placed_point.X, placed_point.Y, placed_point.Z)
 
 
-def selectmeshface():
+def selectmeshface():#Not used yet
+    """Selects a face of a mesh 
+    Parameters
+    ----------
+    message_0: First message to user
+    message_1: Second message to user
+
+    Return:
+    ------
+    Point3D 
+    """
     go = Rhino.Input.Custom.GetObject()
     go.GeometryFilter=Rhino.DocObjects.ObjectType.MeshFace
     go.SetCommandPrompt("Get mesh Face")
@@ -55,6 +75,15 @@ def selectmeshface():
     return face_guid 
 
 def get_match_frame(face_id):
+    """Identifies the face_id of the match Beam
+    Parameters
+    ----------
+    face_id: (int) of selected Beam Object
+
+    Return:
+    ------
+    int  
+    """
     if face_id == 4:
         match_face_id = 3
     elif face_id == 3:
@@ -68,12 +97,19 @@ def get_match_frame(face_id):
     return match_face_id
 
 def RunCommand(is_interactive):
+    """Interactive Rhino Command Creates 90 Lap joint on a seleceted Beam 
+
+    Return:
+    ------
+    None
+    """
     #load model
     model = Model.from_json("data.json")
 
-    #select beambrhino way
+    #Select mesh 
     Obj_ref = rs.GetObject(message = "select mesh(es)", filter = 32, preselect = False, subobjects = True)
     selected_beam_name = (rs.ObjectName(Obj_ref)[:-5])
+
     #Loop through all beams in model to identify the selected beam
     selected_beam = None
     for beam in model.beams:
@@ -90,20 +126,19 @@ def RunCommand(is_interactive):
     name = create_id() 
     
 
-    #adding joints
-
+    #adding joints to selected Beam 
     model.rule_90lap (selected_beam,joint_point,face_id) 
      
-    #create_match_beam # has to be derived from beam frame
+    #create_match_beam with joint 
     model.match_beam(selected_beam,ext_a,ext_b,name,joint_point,face_id,get_match_frame(face_id))
 
     #serialize data
     model.to_json("data.json", pretty = True)
-  
+    
+    #Visualization 
     artist = MeshArtist(None, layer ='BEAM::Beams_out')
     artist.clear_layer()
     for beam in model.beams:
-        #test visualizations
         artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
         artist.draw_faces(join_faces=True)
 

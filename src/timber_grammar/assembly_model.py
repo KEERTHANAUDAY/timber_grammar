@@ -125,43 +125,79 @@ class Model(object):
             else:
                 json.dump(self.data, fp)
 
-    def create_beam(self, frame, depth, width, height,name):
-        self.new_beam = Beam(frame, depth, width, height,name)
+    def create_beam(self, frame, length, width, height,name):
+        """Creates a Beam Object.
+
+        Parameters
+        ----------
+        frame:  Compas Frame 
+        length:  double
+        width:  double
+        height: double
+        name:   UUID
+        """
+        self.new_beam = Beam(frame, length, width, height,name)
         self.beams.append(self.new_beam)
-        return self.new_beam #.mesh was removed
+        return self.new_beam 
     
     def get_joint_frame(self,BeamRef,joint_dist,face_id):
+        """
+        Computes the frame of selected face and translates it to the picked point location
+
+        Parameters
+        ----------
+        BeamRef:  Beam Object 
+        joint_dist:  double
+        face_id:  int
+
+        Return
+        ------
+        compas Frame
+
+        """
         joint_face = BeamRef.get_face_frame(face_id)
         if face_id == 3:     
             y_trans = (joint_face.yaxis*(joint_dist))
             z_trans = (joint_face.normal*-100)
-            joint_dist = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_dist = joint_dist.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
+            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
+            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
         elif face_id == 4:
             y_trans = (joint_face.yaxis*joint_dist)
-            joint_dist = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
+            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
         elif face_id == 2:
             y_trans = (joint_face.yaxis*-joint_dist)
             z_trans = (joint_face.normal*50)
             x_trans = (joint_face.xaxis*-100)
-            joint_dist = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_dist = joint_dist.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-            joint_dist = joint_dist.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
+            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
+            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
+            joint_frame = joint_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
         elif face_id == 1:
             y_trans = (joint_face.yaxis*joint_dist)
             z_trans = (joint_face.zaxis*-50)
-            joint_dist = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_dist = joint_dist.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
+            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
+            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
 
         else:
             pass
 
-        return joint_dist
+        return joint_frame
 
     def get_match_beam_frame(self,BeamRef,ext_b,joint_dist,face_id):
-        # match_beam_face = BeamRef.get_face_frame(face_id)
-        face_frame = self.get_joint_frame(BeamRef,joint_dist,face_id)
+        
+        """Translates the location of the match Beam frame
+            works in conjunction with get_joint_frame
+        Parameters:
+        ----------
+        BeamRef: Beam Object
+        ext_b:  Beam extension (distance used for translation)
+        joint_dist: (double) distance of the frame 
+        face_id: (int) ID of the selected face 
 
+        Return:
+        ------
+        compas Frame
+        """
+        face_frame = self.get_joint_frame(BeamRef,joint_dist,face_id)
         if face_id == 4:
             x_trans = (face_frame.xaxis*-ext_b)
             match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
@@ -185,19 +221,50 @@ class Model(object):
         return match_beam_frame
 
     def Get_distancefromBeamYZFrame(self,BeamRef,placed_point):
-
+        """Computes the distance from selected point to Beam YZ_Plane(face_id = 0)
+        Parameters:
+        ----------
+        BeamRef: Beam Object
+        placed_point: Point3d
+        Return:
+        ------
+        distance (double)
+        """
         YZ_Plane = BeamRef.get_face_frame(0)
         dist = distance_point_plane(placed_point,YZ_Plane)
         return dist
  
     def rule_90lap(self,BeamRef,placed_point,face_id):
+        """Performs 90Lap joint boolean operation to beam object:
+        ----------
+        BeamRef: Beam Object
+        placed_point: Point3d
+        face_id: (int) ID of selected face of Beam
+
+        Return:
+        ------
+        No return 
+        """
         dist = self.Get_distancefromBeamYZFrame(BeamRef,placed_point)
         joint_dist = self.get_joint_frame(BeamRef,dist,face_id)
         BeamRef.joints.append(Joint_90lap(joint_dist,face_id,100,100,50))
         BeamRef.update_mesh()
 
     def match_beam(self,BeamRef,ext_a,ext_b,name,placed_point,face_id,match_face_id):
+        """Creates a 90 Lap joint match beam to selected Beam
+        ----------
+        BeamRef: Beam Object
+        ext_a: Beam Offset up or right
+        ext_b: Beam Offset down or left
+        name: UUID 
+        placed_point: Point3D
+        face_id: (int) ID of selected face of Beam
+        match_face_id: face_id to place joint for match beam 
         
+        Return:
+        ------
+        Beam Object 
+        """   
         dist = self.Get_distancefromBeamYZFrame(BeamRef,placed_point)
         match_beam_frame = self.get_match_beam_frame(BeamRef,ext_b,dist,face_id)
         match_beam = Beam(match_beam_frame,(ext_a+100+ext_b),100,100,name)

@@ -214,6 +214,14 @@ class Beam(object):
 
     # Here we compute the face_frame of the beam
     def get_face_frame(self,face_id):
+        """Computes the frame of the selected face
+        ----------
+        face_id: (int) ID of selected face of Beam
+
+        Return:
+        ------
+        compas Frame 
+        """
         if face_id == 4:
             self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
         elif face_id == 3:

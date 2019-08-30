@@ -13,6 +13,7 @@ __commandname__ = "CreateBeam"
 def RunCommand( is_interactive ):
     #load model
     model = Model.from_json("data.json")
+
     #user input
     rc, corners = Rhino.Input.RhinoGet.GetRectangle()
     if rc != Rhino.Commands.Result.Success:
@@ -20,12 +21,17 @@ def RunCommand( is_interactive ):
     plane = Rhino.Geometry.Plane(corners[0], corners[1], corners[2])
     beam_frame = Frame(plane[0],plane[1],plane[2])
     length = rs.GetReal("length",4000,300,None)
+
+    #Generate unique name for the Beam 
     name = create_id()
     
+    #Create Beam 
     model.create_beam(beam_frame,length,100,100,name)
+
+    #Data serialization 
     model.to_json("data.json", pretty = True)
     
-    #mesh artist
+    #Visualization
     artist = MeshArtist(None, layer ='BEAM::Beams_out')
     artist.clear_layer()
     for beam in model.beams:
