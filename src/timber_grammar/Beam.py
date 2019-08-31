@@ -271,8 +271,10 @@ class Beam(object):
 
         
 if __name__ == '__main__':
-    #test for data
+    #Test 1 : Beam data to be saved and loaded and the two should be the same.
     import compas
+    import tempfile
+    import os
     from compas.datastructures import Mesh
     from compas.geometry._primitives import Frame
     from compas.geometry._primitives.box import Box
@@ -284,34 +286,37 @@ if __name__ == '__main__':
     #Create Beam object
     beam = Beam(Frame.worldXY(),1000,100,150,name)
 
-    # #Create some joints on the beam
-    # beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-    # from compas.geometry import Translation
-    # joint_frame = beam.frame.transformed(Translation([200,0,0]))
-    # beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-    
     #Update mesh - Boolean the joints from Mesh
     beam.update_mesh() 
 
     #Save Beam to Json
-    print(beam)
-    print(beam.data)
-    beam.to_json("beam.json",pretty=True)
-
+    beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
+    
     #Load saved Beam Object
-    loaded_beam = Beam.from_json("beam.json")
-    print(loaded_beam)
-    print(loaded_beam.data)
-    loaded_beam.to_json("beam2.json",pretty=True)
+    loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
 
-    print("Comparing two data dictionary:")
+    #Assert that the two beam objects are different objects
+    assert (beam is not loaded_beam)
+
+    print("Test 1: Comparing two beam data dictionary:")
     assert (beam.data == loaded_beam.data)
     if (beam.data == loaded_beam.data):
         print("Correct") 
     else:
         print("Incorrect")
     
-    print(loaded_beam.data)
+    #Test 2 : Beam with Joint data attached and saved and loaded.
 
-#    out_test = beam.from_data(loaded_beam.data)
-#    print(out_test.mesh)
+    # #Create some joints on the beam
+    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
+    beam.joints.append(Joint_90lap(Frame.worldYZ(),3,50,100,100)) #Note that the position of the joint is dummy data.
+
+    beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
+    loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
+
+    print("Test 2: Comparing two beam data dictionary:")
+    assert (beam.data == loaded_beam.data)
+    if (beam.data == loaded_beam.data):
+        print("Correct") 
+    else:
+        print("Incorrect")
