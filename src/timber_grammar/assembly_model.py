@@ -157,22 +157,24 @@ class Model(object):
         """
         joint_face = BeamRef.get_face_frame(face_id)
         if face_id == 3:     
-            y_trans = (joint_face.yaxis*(joint_dist))
+            y_trans = (joint_face.yaxis*(joint_dist-50))
             z_trans = (joint_face.normal*-100)
+#            x_trans = (joint_face.xaxis*-50)
             joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
             joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
+#            joint_frame = joint_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
         elif face_id == 4:
-            y_trans = (joint_face.yaxis*joint_dist)
+            y_trans = (joint_face.yaxis*(joint_dist-50))
             joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
         elif face_id == 2:
-            y_trans = (joint_face.yaxis*-joint_dist)
+            y_trans = (joint_face.yaxis*(-joint_dist-50))
             z_trans = (joint_face.normal*50)
             x_trans = (joint_face.xaxis*-100)
             joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
             joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
             joint_frame = joint_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
         elif face_id == 1:
-            y_trans = (joint_face.yaxis*joint_dist)
+            y_trans = (joint_face.yaxis*(joint_dist-50))
             z_trans = (joint_face.zaxis*-50)
             joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
             joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
@@ -203,17 +205,17 @@ class Model(object):
             match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
 
         elif face_id == 3:
-            x_trans = (face_frame.xaxis*-ext_b)
+            x_trans = (face_frame.xaxis*(-ext_b+50))
             match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
 
         elif face_id == 2:
             z_trans = (face_frame.normal*-50)
-            x_trans = (face_frame.xaxis*-ext_b)
+            x_trans = (face_frame.xaxis*(-ext_b+50))
             match_beam_frame = face_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
             match_beam_frame = match_beam_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
 
         elif face_id == 1:
-            x_trans = (face_frame.xaxis*-ext_b)
+            x_trans = (face_frame.xaxis*(-ext_b+50))
             z_trans = (face_frame.zaxis*-50)
             match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
             match_beam_frame = match_beam_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
