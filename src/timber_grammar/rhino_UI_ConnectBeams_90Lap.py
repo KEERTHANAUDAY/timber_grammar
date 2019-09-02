@@ -4,8 +4,12 @@ import scriptcontext as sc
 
 import compas
 from compas.geometry import intersection_plane_plane
+from compas.geometry import Point
+from compas.geometry import project_points_plane
 from assembly_model import Model
 from rhino_UI_utilities import UI_helpers
+from compas_rhino.artists import Artist
+from compas_rhino.artists import MeshArtist
 
 __commandname__ = "ConnectBeams_90Lap"
 
@@ -17,58 +21,57 @@ def RunCommand(is_interactive):
     #select meshes
     obj_refs = []
     obj_refs.append(rs.GetObject(message = "select start Beam", filter = 32, preselect = True))
-    obj_refs.append(rs.GetObject(message = "select Beams to connect", filter = 32, preselect = True))
+    obj_refs.extend(rs.GetObjects(message = "select Beams to connect", filter = 32, preselect = True))
 
-    #list of beam names
-    seleceted_beam_names = [rs.ObjectName(name)[:-5] for name in obj_refs]
-
-    #list of selected beams 
-    selected_beams = []
-    for beam in model.beams:
-        for name in seleceted_beam_names:
-            if(beam.name == name):
-                selected_beam = beam 
-                selected_beams.append(selected_beam)
-                break
-    assert (selected_beam != None for selected_beam in selected_beams)
-   
-    
     #user inputs
     face_id = rs.GetInteger("face_id",None,0,5)
-    helper = UI_helpers()
-    start_point = helper.Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
+    helper = UI_helpers() 
+    start_point = (helper.Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge"))
+    joint_points=[(Point(start_point[0],start_point[1],start_point[2]))]#list of compas points
+    
+    #Beam search
+    selected_beams = helper.extract_BeambyName(model, obj_refs)
 
     #finding parallel planes of selected beams 
     start_Beam_plane = helper.get_Beam_interecting_Planes(selected_beams[0],1,face_id)
-    print(start_Beam_plane)
-    connecting_Beams_planes=[helper.get_Beam_interecting_Planes(BeamRef,0,None) for BeamRef in selected_beams[1:]]
-
-
+    #extracting parallel planes 
     connecting_Beams_plane =[]
     for BeamRef in selected_beams[1:]:
-        #list of the two intersecting planes of a single Beam 
-        intersecting_planes = helper.get_Beam_interecting_Planes(BeamRef,0,None) 
-
+        intersecting_planes = helper.get_Beam_interecting_Planes(BeamRef,0,None)
         for plane in intersecting_planes:
-            test = intersection_plane_plane(plane,start_Beam_plane)
-            print(test)
-            if test == None:
+            planes = intersection_plane_plane(plane,start_Beam_plane)
+            if planes == None:
                 parallel_plane = plane
                 connecting_Beams_plane.append(parallel_plane)
-            else:
-                pass
-                
-    print(connecting_Beams_plane)
 
-  
+    projected_point_list = []
+    list_point = [start_point]
 
+    for plane in connecting_Beams_plane:
+        projected_point_list.extend(project_points_plane(list_point,plane))
+#unsure how to write the above loops as a comprehension, attempt below(unsucessful)
+#    projected_point_list = [project_points_plane(list_point,plane)for plane in connecting_Beams_plane]
+ 
+    joint_points.extend([Point(list[0],list[1],list[2])for list in projected_point_list])
+    print(joint_points)
 
-    #create lap joint on selected beams  
+    #create lap joint on selected beams 
+    for selected_beam in selected_beams:
+        for joint_point in joint_points:
+            model.rule_90lap(selected_beam,joint_point,face_id)
+
     #create match beam for match beam 
 
     #save model
 
-    #paint mesh 
+    #Visualization 
+    artist = MeshArtist(None, layer ='BEAM::Beams_out')
+    artist.clear_layer()
+    for beam in model.beams:
+        artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
+        artist.draw_faces(join_faces=True)
+
+
 
 if __name__ == '__main__':
     RunCommand(True) 

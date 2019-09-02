@@ -71,27 +71,30 @@ class UI_helpers(object):
         ------
         int  
         """
-        if face_id == 4:
-            match_face_id = 3
-        elif face_id == 3:
-            match_face_id = 3
-        elif face_id == 2:
-            match_face_id = 1
-        elif face_id == 1:
-            match_face_id = 1
-        else:
-            pass
+        # if face_id == 4:
+        #     match_face_id = 3
+        # elif face_id == 3:
+        #     match_face_id = 3
+        # elif face_id == 2:
+        #     match_face_id = 1
+        # elif face_id == 1:
+        #     match_face_id = 1
+        # else:
+        #     pass
+        if face_id==4 or face_id==3: face_id=3
+        elif face_id==2 or face_id==1:face_id=1
+        return face_id
 
-        return match_face_id
+    def get_start_face(self,face_id):
+        
+        if face_id == 3 or face_id == 1: face_id == 4
+        elif face_id == 4 or face_id == 2: face_id == 3
+        return face_id
 
     def get_Beam_interecting_Planes(self, BeamsRef,flag=0,face_id=None):
         """Computes the interecting planes of a given Beam
         ----------
-        face_id: (int) of selected Beam Object
 
-        Return:
-        ------
-        int  
         """
         if flag == 0:
             intersecting_planes = []
@@ -101,11 +104,26 @@ class UI_helpers(object):
             intersecting_planes.append(Plane(frame.point, frame.normal))
             return intersecting_planes
         elif flag == 1:
-            frame = BeamsRef.get_face_frame(face_id)
+            frame = BeamsRef.get_face_frame(self.get_start_face(face_id))
             start_frame = Plane(frame.point, frame.normal)
             return start_frame
         else:
             pass
+    def extract_BeambyName(self,model, obj_refs):
+        """Extracts the Beam object by peforming a name search 
+        ---------
+        """
+        seleceted_beam_names = [rs.ObjectName(name)[:-5] for name in obj_refs]
+        selected_beams = []
+        for name in seleceted_beam_names:
+            for beam in model.beams:
+                if(beam.name == name):
+                    selected_beam = beam 
+                    selected_beams.append(selected_beam)
+                    break
+        assert (selected_beam != None for selected_beam in selected_beams)
+        return (selected_beams)
+
 
 
 
