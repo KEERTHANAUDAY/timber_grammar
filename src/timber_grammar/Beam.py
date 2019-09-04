@@ -6,6 +6,7 @@ from compas.datastructures import mesh_bounding_box
 from id_generator import create_id
 from compas.geometry import Frame
 from compas.geometry import Plane
+from compas.geometry import Translation
 
 from Joint import Joint
 import json
@@ -15,7 +16,8 @@ import sys
 python_exe_path = sys.executable
 
 class Beam(object):
-    """ Beam class creates beams and performs booleans(called through trimesh proxy)
+    """ Beam class creates beams and performs booleans(called through tri
+    mesh proxy)
     """
 
     def __init__(self, frame, length, width, height, name ):
@@ -57,7 +59,6 @@ class Beam(object):
         """
         data = {
             'type'      : self.__class__.__name__, #Keep this line for deserialization
-
             'frame'     : None,   
             'length'    : self.length,
             'width'     : self.width,
@@ -191,29 +192,10 @@ class Beam(object):
             self.mesh = self.trimesh_proxy_subtract(self.mesh,joint.mesh) #why am i giving joint.mesh and not joint, isn't trimesh_proxy_subtract a classmethod?
         self.mesh.name = self.name
         return self.mesh
-
-    # @property
-    # def face_frame(self):
-    #     print('here we create the face frame')
-    #     return self.face_frame
     
-    # @face_frame.setter
-    # def face_frame(self,face_id):
-    #     if face_id == 4:
-    #         self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
-    #     elif face_id == None:
-    #         break
-    #     return self.face_frame
-
-    # def face_frame(self,face_id):
-    #     if face_id == 4:
-    #         self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
-    #     else:
-    #         pass
-    #     return self.face_frame
-
+   
     # Here we compute the face_frame of the beam
-    def get_face_frame(self,face_id):
+    def face_frame(self,face_id):
         """Computes the frame of the selected face
         ----------
         face_id: (int) ID of selected face of Beam
@@ -222,19 +204,26 @@ class Beam(object):
         ------
         compas Frame 
         """
+        if face_id == 1:
+            return self.frame.copy()
+        if face_id == 2:
+            new_origin = self.frame.represent_point_in_global_coordinates([0,self.height,0])
+            return Frame(new_origin,self.frame.xaxis, self.frame.normal)
+        if face_id == 3:
+            new_origin = self.frame.represent_point_in_global_coordinates([0,self.height,self.width])
+            return Frame(new_origin,self.frame.xaxis, self.frame.yaxis * -1.0)
         if face_id == 4:
-            self.face_frame = Frame(self.frame.point, self.frame.normal, self.frame.xaxis)
-        elif face_id == 3:
-            self.face_frame = Frame(self.frame.point, self.frame.yaxis, self.frame.xaxis)
-        elif face_id == 2:
-            self.face_frame = Frame(self.frame.point, (self.frame.normal*-1), (self.frame.xaxis*-1))
-        elif face_id == 1:
-            self.face_frame = Frame(self.frame.point, self.frame.yaxis, self.frame.xaxis)
-        elif face_id == 0:
-            self.face_frame = Plane(self.frame.point, self.frame.xaxis)
+            new_origin = self.frame.represent_point_in_global_coordinates([0,0,self.width])
+            return Frame(new_origin,self.frame.xaxis, self.frame.normal * -1.0)
         else:
-            pass
-        return self.face_frame
+            raise IndexError('face_id index out of range')
+
+    def face_plane(self,face_id):
+
+        origin_frame = self.frame.copy()
+        if face_id == 0:
+            plane = Plane(origin_frame.point, origin_frame.xaxis)
+        return plane
 
     def draw_uncut_mesh(self):
         '''Computes and returns the beam geometry.
@@ -276,15 +265,18 @@ if __name__ == '__main__':
     import tempfile
     import os
     from compas.datastructures import Mesh
+    from compas.geometry import Point
+    from compas.geometry import Vector
     from compas.geometry._primitives import Frame
     from compas.geometry._primitives.box import Box
-    from Joint_90lap import Joint_90lap
+
     from id_generator import create_id
 
     name = create_id()
 
     #Create Beam object
-    beam = Beam(Frame.worldXY(),1000,100,150,name)
+    #beam = Beam(Frame.worldYZ(),1000,100,150,name)
+    beam = Beam(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,name)
 
     #Update mesh - Boolean the joints from Mesh
     beam.update_mesh() 
@@ -305,13 +297,24 @@ if __name__ == '__main__':
     else:
         print("Incorrect")
     
+
+    print(beam.frame)
+    for i in range (4):
+        print (beam.face_frame(i+1))
+    
     #Test 2 : Beam with Joint data attached and saved and loaded.
+    from Joint_90lap import Joint_90lap
 
-    # #Create some joints on the beam
-    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-    beam.joints.append(Joint_90lap(Frame.worldYZ(),3,50,100,100)) #Note that the position of the joint is dummy data.
+    #Create some joints on the beam
+    new_joint = Joint_90lap(180,1,50,100,100)
+    beam.joints.append(new_joint) #Note that the position of the joint is dummy data.
+    new_joint.update_joint_mesh(beam)
+    beam.update_mesh()
 
+    #Save Beam with the appended Joint to Json
     beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
+    
+    #Load the saved Beam
     loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
 
     print("Test 2: Comparing two beam data dictionary:")
@@ -320,3 +323,4 @@ if __name__ == '__main__':
         print("Correct") 
     else:
         print("Incorrect")
+    print (beam.data)

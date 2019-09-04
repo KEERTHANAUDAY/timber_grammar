@@ -26,8 +26,9 @@ def RunCommand( is_interactive ):
     name = create_id()
     
     #Create Beam 
-    model.create_beam(beam_frame,length,100,100,name)
+    model.rule_create_beam(beam_frame,length,100,100,name)
 
+    
     #Data serialization 
     model.to_json("data.json", pretty = True)
     

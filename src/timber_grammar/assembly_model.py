@@ -12,7 +12,7 @@ from compas.geometry import Vector
 from compas.geometry import add_vectors
 from compas.geometry import distance_point_plane
 from compas.geometry import subtract_vectors
-
+from id_generator import create_id
 
 class Model(object):
     """This class is an assembly model
@@ -125,7 +125,7 @@ class Model(object):
             else:
                 json.dump(self.data, fp)
 
-    def create_beam(self, frame, length, width, height,name):
+    def rule_create_beam(self, frame, length, width, height,name):
         """Creates a Beam Object.
 
         Parameters
@@ -140,103 +140,7 @@ class Model(object):
         self.beams.append(self.new_beam)
         return self.new_beam 
     
-    def get_joint_frame(self,BeamRef,joint_dist,face_id):
-        """
-        Computes the frame of selected face and translates it to the picked point location
-
-        Parameters
-        ----------
-        BeamRef:  Beam Object 
-        joint_dist:  double
-        face_id:  int
-
-        Return
-        ------
-        compas Frame
-
-        """
-        joint_face = BeamRef.get_face_frame(face_id)
-        if face_id == 3:     
-            y_trans = (joint_face.yaxis*(joint_dist-50))
-            z_trans = (joint_face.normal*-100)
-#            x_trans = (joint_face.xaxis*-50)
-            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-#            joint_frame = joint_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-        elif face_id == 4:
-            y_trans = (joint_face.yaxis*(joint_dist-50))
-            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-        elif face_id == 2:
-            y_trans = (joint_face.yaxis*(-joint_dist-50))
-            z_trans = (joint_face.normal*50)
-            x_trans = (joint_face.xaxis*-100)
-            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-            joint_frame = joint_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-        elif face_id == 1:
-            y_trans = (joint_face.yaxis*(joint_dist-50))
-            z_trans = (joint_face.zaxis*-50)
-            joint_frame = joint_face.transformed(Translation([(y_trans)[0],(y_trans)[1],(y_trans)[2]]))
-            joint_frame = joint_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-
-        else:
-            pass
-
-        return joint_frame
-
-    def get_match_beam_frame(self,BeamRef,ext_b,joint_dist,face_id):
-        
-        """Translates the location of the match Beam frame
-            works in conjunction with get_joint_frame
-        Parameters:
-        ----------
-        BeamRef: Beam Object
-        ext_b:  Beam extension (distance used for translation)
-        joint_dist: (double) distance of the frame 
-        face_id: (int) ID of the selected face 
-
-        Return:
-        ------
-        compas Frame
-        """
-        face_frame = self.get_joint_frame(BeamRef,joint_dist,face_id)
-        if face_id == 4:
-            x_trans = (face_frame.xaxis*-ext_b)
-            match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-
-        elif face_id == 3:
-            x_trans = (face_frame.xaxis*(-ext_b+50))
-            match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-
-        elif face_id == 2:
-            z_trans = (face_frame.normal*-50)
-            x_trans = (face_frame.xaxis*(-ext_b+50))
-            match_beam_frame = face_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-            match_beam_frame = match_beam_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-
-        elif face_id == 1:
-            x_trans = (face_frame.xaxis*(-ext_b+50))
-            z_trans = (face_frame.zaxis*-50)
-            match_beam_frame = face_frame.transformed(Translation([(x_trans)[0],(x_trans)[1],(x_trans)[2]]))
-            match_beam_frame = match_beam_frame.transformed(Translation([(z_trans)[0],(z_trans)[1],(z_trans)[2]]))
-
-        return match_beam_frame
-
-    def Get_distancefromBeamYZFrame(self,BeamRef,placed_point):
-        """Computes the distance from selected point to Beam YZ_Plane(face_id = 0)
-        Parameters:
-        ----------
-        BeamRef: Beam Object
-        placed_point: Point3d
-        Return:
-        ------
-        distance (double)
-        """
-        YZ_Plane = BeamRef.get_face_frame(0)
-        dist = distance_point_plane(placed_point,YZ_Plane)
-        return dist
- 
-    def rule_90lap(self,BeamRef,placed_point,face_id):
+    def rule_90lap(self, beam, joint_distance_from_start, face_id, ext_start, ext_end, name):
         """Performs 90Lap joint boolean operation to beam object:
         ----------
         BeamRef: Beam Object
@@ -247,41 +151,78 @@ class Model(object):
         ------
         No return 
         """
-        dist = self.Get_distancefromBeamYZFrame(BeamRef,placed_point)
-        joint_dist = self.get_joint_frame(BeamRef,dist,face_id)
-        BeamRef.joints.append(Joint_90lap(joint_dist,face_id,100,100,50))
-        BeamRef.update_mesh()
+        #Add joint90Lap to Beam 1
+        #selected Beam and its boolean
+        joint = Joint_90lap(joint_distance_from_start,face_id,100,50,100)
+        beam.joints.append(joint)
+        joint.update_joint_mesh(beam)
+        beam.update_mesh()
 
-    def match_beam(self,BeamRef,ext_a,ext_b,name,placed_point,face_id,match_face_id):
-        """Creates a 90 Lap joint match beam to selected Beam
-        ----------
-        BeamRef: Beam Object
-        ext_a: Beam Offset up or right
-        ext_b: Beam Offset down or left
-        name: UUID 
-        placed_point: Point3D
-        face_id: (int) ID of selected face of Beam
-        match_face_id: face_id to place joint for match beam 
-        
-        Return:
-        ------
-        Beam Object 
-        """   
-        dist = self.Get_distancefromBeamYZFrame(BeamRef,placed_point)
-        match_beam_frame = self.get_match_beam_frame(BeamRef,ext_b,dist,face_id)
-        match_beam = Beam(match_beam_frame,(ext_a+100+ext_b),100,100,name)
+        #Add Beam 2 to model
 
-        joint_dist = self.get_joint_frame(match_beam,ext_b,match_face_id)
-        match_beam.joints.append(Joint_90lap(joint_dist,match_face_id,100,100,50))
+        #get match_beam_frame
+        face_frame = beam.face_frame(face_id)
+        match_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_from_start-50) , 0, beam.height + ext_end]) 
+        match_beam_frame = Frame(match_beam_origin, face_frame.normal * -1.0, face_frame.yaxis)
+        #length of match beam 
+        length = ext_end + ext_start + beam.height #height is picked instead of heard coding 100 since the frame is always created on the face(XZPlane)
+        #name of match beam 
+        name = create_id()
+  
+        match_beam = self.rule_create_beam(match_beam_frame,length,100,100,name)
+
+        #Add joint90Lap to Beam 2
+        #Update mesh of 2 new joints and 2 beams
+        match_beam_joint = Joint_90lap((ext_end+50),3,100,50,100)
+        match_beam.joints.append(match_beam_joint)
+        match_beam_joint.update_joint_mesh(match_beam)
         match_beam.update_mesh()
+ 
 
-        self.beams.append(match_beam)
-        return match_beam
+    
+    # def match_Beam_to_Beams(self,BeamRefs,length,ext,name,joint_points,face_id,match_face_id):
+    #     """Creates a 90 Lap joint match beam to selected Beam
+    #     ----------
+    #     BeamRefs:        list of Beam Object
+    #     length:         length of match Beam
+    #     ext:            Beam Offset from selected point
+    #     name:           UUID 
+    #     joint_points:   list of points of origin got joint
+    #     face_id:        (int) ID of selected face of Beam
+    #     match_face_id:  face_id to place joint for match beam 
+        
+    #     Return:
+    #     ------
+    #     Match beam with booleaned joints  
+    #     """   
+        
+    #     dist = self.Get_distancefromBeamYZFrame(BeamRefs[0],joint_points[0])  
+       
+    #     match_beam_frame = self.get_match_beam_frame(BeamRefs[0],ext,dist,face_id)
+    #     #make a singlebeam
+    #     match_beam = Beam(match_beam_frame,length,100,100,name)
+
+    #     #append joints to match_beam 
+    #     joint_dist = [] 
+    #     joint_frames = []
+    #     for joint_point in joint_points:
+    #         dist = self.Get_distancefromBeamYZFrame(match_beam,joint_point)
+    #         joint_dist.append(dist)
+    #     #     joint_frame = self.get_joint_frame(match_beam,dist,match_face_id)
+    #     #     joint_frames.append(joint_frame)
+    #     #     match_beam.joints.append(Joint_90lap(joint_frame,match_face_id,100,100,50))
+    #     # match_beam.update_mesh()
+
+    #     # self.beams.append(match_beam)
+    #     return joint_dist
+ 
 
 
      
    
-#if __name__ == '__main__':
+if __name__ == '__main__':
+
+    pass
 #    import compas
 #    from compas.datastructures import Mesh
 #    from compas.geometry import Frame
@@ -289,49 +230,49 @@ class Model(object):
 #    from compas_rhino.artists import Artist
 #    from Joint_90lap import Joint_90lap
 #    from id_generator import create_id
-#    
-#    #Create Beam object
+   
+#    Create Beam object
 #    beam = Beam(Frame.worldXY(),1000,100,150,create_id())
-#
-#    #Create some joints on the beam
+
+#    Create some joints on the beam
 #    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
 #    from compas.geometry import Translation
 #    joint_frame = beam.frame.transformed(Translation([200,0,0]))
 #    beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-#    
-#    #Update mesh - Boolean the joints from Mesh
+   
+#    Update mesh - Boolean the joints from Mesh
 #    beam.update_mesh()
-#
-#    #Add beam into model
+
+#    Add beam into model
 #    model = Model()
 #    model.beams.append(beam)
-#
-#    #Save and load the model
+
+#    Save and load the model
 #    model.to_json("model.json")
 #    loaded_model = Model.from_json("model.json")
 #    loaded_model.to_json("model2.json")
-#
+
 #    print ("Comparing two data dictionary:")
 #    assert (model.data == loaded_model.data)
 #    if (model.data == loaded_model.data) :
 #        print("Correct") 
 #    else:
 #        print("Incorrect")
-#    
+   
 
-    # m = Model()
-    # m.create_beam(Frame.worldXY(),10,20,30,name)
-    # #t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
+#     m = Model()
+#     m.create_beam(Frame.worldXY(),10,20,30,name)
+#     t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
 
-    # m.to_json("august.json",pretty=True)
+#     m.to_json("august.json",pretty=True)
     
-    # loaded_beam = m.from_json("august.json")
-    # print(loaded_beam)
-    # print(loaded_beam.data)
+#     loaded_beam = m.from_json("august.json")
+#     print(loaded_beam)
+#     print(loaded_beam.data)
 
         
     
-#    
+   
 #        print(type(beam))
 #        print(beam.width)
 #        print(beam.height)

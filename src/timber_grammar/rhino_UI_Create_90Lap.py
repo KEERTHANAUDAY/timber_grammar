@@ -23,6 +23,20 @@ import math
 
 __commandname__ = "Create_90Lap"
 
+def Get_distancefromBeamYZFrame(BeamRef,placed_point):
+        """Computes the distance from selected point to Beam YZ_Plane(face_id = 0)
+        Parameters:
+        ----------
+        BeamRef: Beam Object
+        placed_point: Point3d
+        Return:
+        ------
+        distance (double)
+        """
+        YZ_Plane = BeamRef.face_plane(0)
+        dist = distance_point_plane(placed_point,YZ_Plane)
+        return dist
+
 def RunCommand(is_interactive):
     """Interactive Rhino Command Creates 90 Lap joint on a seleceted Beam 
 
@@ -50,16 +64,16 @@ def RunCommand(is_interactive):
     helper = UI_helpers()
     joint_point = helper.Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
 
-    ext_a = rs.GetReal("extension_a up/left",None,None,None)
-    ext_b = rs.GetReal("extension_b down/right",None,None,None)
+    ext_start = rs.GetReal("extension start ",None,None,None)
+    ext_end = rs.GetReal("extension end ",None,None,None)
     name = create_id() 
     
-
     #adding joints to selected Beam 
-    model.rule_90lap (selected_beam,joint_point,face_id) 
+    joint_distance_from_start = Get_distancefromBeamYZFrame(selected_beam,joint_point)
+    model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
      
     #create_match_beam with joint 
-    model.match_beam(selected_beam,ext_a,ext_b,name,joint_point,face_id,helper.get_match_frame(face_id))
+#    model.match_beam(selected_beam,ext_a,ext_b,name,joint_point,face_id,helper.get_match_frame(face_id))
 
     #serialize data
     model.to_json("data.json", pretty = True)
