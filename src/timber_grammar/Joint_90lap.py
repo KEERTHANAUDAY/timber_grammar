@@ -87,17 +87,8 @@ class Joint_90lap(Joint):
         # Get face_frame from Beam (the parent Beam)
         face_frame = BeamRef.face_frame(self.face_id)
 
-        # Compute Frame for drawing boolean box
-        # box_frame_origin = face_frame.point.copy()
-
-        # box_frame_origin += face_frame.xaxis * (self.distance - 50)
-        # box_frame_origin += face_frame.yaxis * TOLEARNCE * -1.0
-        # box_frame_origin += face_frame.normal * TOLEARNCE * -1.0
-        # box_frame = compas.geometry.Frame(box_frame_origin, face_frame.xaxis, face_frame.yaxis)
-
         box_frame_origin = face_frame.represent_point_in_global_coordinates([(self.distance - 50), TOLEARNCE * -1.0, TOLEARNCE * -1.0]) 
         box_frame = Frame(box_frame_origin, face_frame.xaxis, face_frame.yaxis)
-
 
         # Compute 3 Box dimensions 
         box_x = self.length

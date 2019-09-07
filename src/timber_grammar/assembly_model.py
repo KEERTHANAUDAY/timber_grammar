@@ -159,7 +159,6 @@ class Model(object):
         beam.update_mesh()
 
         #Add Beam 2 to model
-
         #get match_beam_frame
         face_frame = beam.face_frame(face_id)
         match_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_from_start-50) , 0, beam.height + ext_end]) 
@@ -177,8 +176,44 @@ class Model(object):
         match_beam.joints.append(match_beam_joint)
         match_beam_joint.update_joint_mesh(match_beam)
         match_beam.update_mesh()
- 
+    
+    def rule_Connect_90lap(self,selected_beams,projected_point_list,face_id,beam_length,ext_end,name):
 
+        #create joints on selected beams 
+
+        joint_distance_to_selectedBeams = []
+        for beam in selected_beams:
+            for pt in projected_point_list:
+                joint_distance = beam.Get_distancefromBeamYZFrame(pt)
+                joint_distance_to_selectedBeams.append(joint_distance)
+            # for joint_distance in joint_distances:
+                joint = Joint_90lap(joint_distance,face_id,100,50,100)
+                beam.joints.append(joint)
+                joint.update_joint_mesh(beam)
+                beam.update_mesh()
+
+        #Add match beam 
+        #####get beam frame 
+        face_frame = selected_beams[0].face_frame(face_id)
+        connection_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_to_selectedBeams[0]-50),0, ext_end])
+        connection_beam_frame = Frame(connection_beam_origin, face_frame.normal * -1.0, face_frame.yaxis)
+
+        match_beam = self.rule_create_beam(connection_beam_frame,beam_length,100,100,name)
+
+        #calculate distance from projected points to match_beam[0]plane
+        for pt in projected_point_list:
+            match_beam_joint_distance = match_beam.Get_distancefromBeamYZFrame(pt)
+            joint = Joint_90lap(match_beam_joint_distance,3,100,50,100)
+            match_beam.joints.append(joint)
+            joint.update_joint_mesh(match_beam)
+            match_beam.update_mesh()
+
+        
+     
+
+        
+
+ 
     
     # def match_Beam_to_Beams(self,BeamRefs,length,ext,name,joint_points,face_id,match_face_id):
     #     """Creates a 90 Lap joint match beam to selected Beam
@@ -216,10 +251,6 @@ class Model(object):
     #     # self.beams.append(match_beam)
     #     return joint_dist
  
-
-
-     
-   
 if __name__ == '__main__':
 
     pass

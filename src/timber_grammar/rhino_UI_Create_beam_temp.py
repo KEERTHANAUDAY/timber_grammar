@@ -8,7 +8,8 @@ from assembly_model import Model
 from compas_rhino.artists import MeshArtist
 from compas_rhino.artists import Artist
 
-__commandname__ = "CreateBeam"
+__commandname__ = "CreateBeam" 
+
 
 def RunCommand( is_interactive ):
     #load model

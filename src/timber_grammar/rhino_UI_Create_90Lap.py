@@ -69,7 +69,8 @@ def RunCommand(is_interactive):
     name = create_id() 
     
     #adding joints to selected Beam 
-    joint_distance_from_start = Get_distancefromBeamYZFrame(selected_beam,joint_point)
+    #joint_distance_from_start = Get_distancefromBeamYZFrame(selected_beam,joint_point)
+    joint_distance_from_start = selected_beam.Get_distancefromBeamYZFrame(joint_point)
     model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
      
     #create_match_beam with joint 

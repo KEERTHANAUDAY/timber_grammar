@@ -7,6 +7,7 @@ from id_generator import create_id
 from compas.geometry import Frame
 from compas.geometry import Plane
 from compas.geometry import Translation
+from compas.geometry import distance_point_plane
 
 from Joint import Joint
 import json
@@ -193,7 +194,20 @@ class Beam(object):
         self.mesh.name = self.name
         return self.mesh
     
-   
+    def Get_distancefromBeamYZFrame(self,placed_point):
+        """Computes the distance from selected point to Beam YZ_Plane(face_id = 0)
+        Parameters:
+        ----------
+        BeamRef: Beam Object
+        placed_point: Point3d
+        Return:
+        ------
+        distance (double)
+        """
+        YZ_Plane = self.face_plane(0)
+        dist = distance_point_plane(placed_point,YZ_Plane)
+        return dist
+
     # Here we compute the face_frame of the beam
     def face_frame(self,face_id):
         """Computes the frame of the selected face
@@ -218,11 +232,40 @@ class Beam(object):
         else:
             raise IndexError('face_id index out of range')
 
-    def face_plane(self,face_id):
+    def face_plane(self,plane_id):
 
         origin_frame = self.frame.copy()
-        if face_id == 0:
-            plane = Plane(origin_frame.point, origin_frame.xaxis)
+        if plane_id == 0:
+            plane = Plane(origin_frame.point, origin_frame.xaxis) 
+
+        elif plane_id == 1:
+            face_1 = self.face_frame(1).copy()
+            plane = Plane(face_1.point, origin_frame.normal)
+
+        elif plane_id == 2:
+            face_2 = self.face_frame(2).copy()
+            plane = Plane(face_2.point, face_2.normal)
+
+        elif plane_id == 3:
+            face_3 = self.face_frame(3).copy()
+            plane = Plane(face_3.point, face_3.normal)
+
+        elif plane_id == 4:
+            face_4 = self.face_frame(4).copy()
+            plane = Plane(face_4.point, face_4.normal)
+
+        elif plane_id == 5:
+            center_horizontal_plane = self.face_frame(1).copy()
+            new_point = center_horizontal_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
+            plane = Plane(new_point, center_horizontal_plane.normal)
+
+        elif plane_id == 6:
+            center_vertical_plane = self.face_frame(2).copy()
+            new_point = center_vertical_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
+            plane = Plane(new_point, center_vertical_plane.normal)
+            
+            
+
         return plane
 
     def draw_uncut_mesh(self):
