@@ -254,18 +254,16 @@ class Beam(object):
             face_4 = self.face_frame(4).copy()
             plane = Plane(face_4.point, face_4.normal)
 
-        elif plane_id == 5:
+        elif plane_id == 5: #horizontal plane that at the center of the beam 
             center_horizontal_plane = self.face_frame(1).copy()
             new_point = center_horizontal_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
             plane = Plane(new_point, center_horizontal_plane.normal)
 
-        elif plane_id == 6:
+        elif plane_id == 6: #vertical plane that at the center of the beam 
             center_vertical_plane = self.face_frame(2).copy()
             new_point = center_vertical_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
             plane = Plane(new_point, center_vertical_plane.normal)
             
-            
-
         return plane
 
     def draw_uncut_mesh(self):

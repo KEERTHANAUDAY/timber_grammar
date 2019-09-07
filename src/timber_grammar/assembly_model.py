@@ -186,7 +186,6 @@ class Model(object):
             for pt in projected_point_list:
                 joint_distance = beam.Get_distancefromBeamYZFrame(pt)
                 joint_distance_to_selectedBeams.append(joint_distance)
-            # for joint_distance in joint_distances:
                 joint = Joint_90lap(joint_distance,face_id,100,50,100)
                 beam.joints.append(joint)
                 joint.update_joint_mesh(beam)
@@ -208,105 +207,52 @@ class Model(object):
             joint.update_joint_mesh(match_beam)
             match_beam.update_mesh()
 
-        
-     
-
-        
-
- 
-    
-    # def match_Beam_to_Beams(self,BeamRefs,length,ext,name,joint_points,face_id,match_face_id):
-    #     """Creates a 90 Lap joint match beam to selected Beam
-    #     ----------
-    #     BeamRefs:        list of Beam Object
-    #     length:         length of match Beam
-    #     ext:            Beam Offset from selected point
-    #     name:           UUID 
-    #     joint_points:   list of points of origin got joint
-    #     face_id:        (int) ID of selected face of Beam
-    #     match_face_id:  face_id to place joint for match beam 
-        
-    #     Return:
-    #     ------
-    #     Match beam with booleaned joints  
-    #     """   
-        
-    #     dist = self.Get_distancefromBeamYZFrame(BeamRefs[0],joint_points[0])  
-       
-    #     match_beam_frame = self.get_match_beam_frame(BeamRefs[0],ext,dist,face_id)
-    #     #make a singlebeam
-    #     match_beam = Beam(match_beam_frame,length,100,100,name)
-
-    #     #append joints to match_beam 
-    #     joint_dist = [] 
-    #     joint_frames = []
-    #     for joint_point in joint_points:
-    #         dist = self.Get_distancefromBeamYZFrame(match_beam,joint_point)
-    #         joint_dist.append(dist)
-    #     #     joint_frame = self.get_joint_frame(match_beam,dist,match_face_id)
-    #     #     joint_frames.append(joint_frame)
-    #     #     match_beam.joints.append(Joint_90lap(joint_frame,match_face_id,100,100,50))
-    #     # match_beam.update_mesh()
-
-    #     # self.beams.append(match_beam)
-    #     return joint_dist
  
 if __name__ == '__main__':
-
-    pass
-#    import compas
-#    from compas.datastructures import Mesh
-#    from compas.geometry import Frame
-#    from compas_rhino.artists import MeshArtist
-#    from compas_rhino.artists import Artist
-#    from Joint_90lap import Joint_90lap
-#    from id_generator import create_id
+   import compas
+   from compas.datastructures import Mesh
+   from compas.geometry import Frame
+   from compas_rhino.artists import MeshArtist
+   from compas_rhino.artists import Artist
+   from Joint_90lap import Joint_90lap
+   from id_generator import create_id
    
-#    Create Beam object
-#    beam = Beam(Frame.worldXY(),1000,100,150,create_id())
+  
+   beam = Beam(Frame.worldXY(),1000,100,150,create_id())
 
-#    Create some joints on the beam
-#    beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-#    from compas.geometry import Translation
-#    joint_frame = beam.frame.transformed(Translation([200,0,0]))
-#    beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-   
-#    Update mesh - Boolean the joints from Mesh
-#    beam.update_mesh()
 
-#    Add beam into model
-#    model = Model()
-#    model.beams.append(beam)
+   beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
+   from compas.geometry import Translation
+   joint_frame = beam.frame.transformed(Translation([200,0,0]))
+   beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
 
-#    Save and load the model
-#    model.to_json("model.json")
-#    loaded_model = Model.from_json("model.json")
-#    loaded_model.to_json("model2.json")
+   beam.update_mesh()
 
-#    print ("Comparing two data dictionary:")
-#    assert (model.data == loaded_model.data)
-#    if (model.data == loaded_model.data) :
-#        print("Correct") 
-#    else:
-#        print("Incorrect")
+  
+   model = Model()
+   model.beams.append(beam)
+
+
+   model.to_json("model.json")
+   loaded_model = Model.from_json("model.json")
+   loaded_model.to_json("model2.json")
+
+   print ("Comparing two data dictionary:")
+   assert (model.data == loaded_model.data)
+   if (model.data == loaded_model.data) :
+       print("Correct") 
+   else:
+       print("Incorrect")
    
 
-#     m = Model()
-#     m.create_beam(Frame.worldXY(),10,20,30,name)
-#     t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
+    m = Model()
+    m.create_beam(Frame.worldXY(),10,20,30,name)
+    t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
 
-#     m.to_json("august.json",pretty=True)
+    m.to_json("august.json",pretty=True)
     
-#     loaded_beam = m.from_json("august.json")
-#     print(loaded_beam)
-#     print(loaded_beam.data)
+    loaded_beam = m.from_json("august.json")
+    print(loaded_beam)
+    print(loaded_beam.data)
 
         
-    
-   
-#        print(type(beam))
-#        print(beam.width)
-#        print(beam.height)
-#        artist = MeshArtist(beam, layer='Beams_out')
-#        artist.clear_layer()
-#        artist.draw_faces(join_faces=False)

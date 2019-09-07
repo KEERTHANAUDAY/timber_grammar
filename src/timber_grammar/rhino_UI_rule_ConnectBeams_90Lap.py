@@ -152,15 +152,6 @@ def RunCommand(is_interactive):
        new_point = project_points_plane(new_start_point,plane)
        projected_point_list.extend(new_point)
 
-    #get distance of projected point and YZPlane
-    # joint_distances = []
-    # # joint_distance.append(start_beam.Get_distancefromBeamYZFrame(start_point))
-    # for b,pt in zip(beams_to_connect,projected_point_list):
-    #     joint_distances.append(b.Get_distancefromBeamYZFrame(pt))
-
-
-    #get length of beam by max distance calculation 
-
     pt_distance = []
     for pt in projected_point_list[1:]:
         pt_distance.append(distance_point_point(new_start_point[0],pt))
@@ -168,7 +159,6 @@ def RunCommand(is_interactive):
 
 
     #check if beams are to the right/left or top/bottom 
-  
     if face_id == 1 or face_id == 4:
         if (selected_beams[0].frame.point.x > selected_beams[1].frame.point.x) or \
             (selected_beams[0].frame.point.y < selected_beams[1].frame.point.y) or \
@@ -183,18 +173,14 @@ def RunCommand(is_interactive):
             (selected_beams[0].frame.point.y < selected_beams[1].frame.point.y) or \
                 (selected_beams[0].frame.point.z < selected_beams[1].frame.point.z) :
             new_ext_end = ext_end + selected_beams[0].height 
-            print("direction = right")
-            
+            print("direction = right")          
         else:
             new_ext_end = beam_length - ext_start
             print("direction = left")
 
 
-    #list of distance to move joints on match beam 
-    
+    #list of distance to move joints on match beam    
     model.rule_Connect_90lap(selected_beams,projected_point_list,face_id,beam_length,new_ext_end,create_id())
-
-
 
     #Data serialization 
     model.to_json("data.json", pretty = True)
@@ -208,7 +194,6 @@ def RunCommand(is_interactive):
             'color': (0,255,0)
         })
 
-
     artist = MeshArtist(None, layer ='BEAM::Beams_out')
     artist.clear_layer()
     artist.draw_points(viz_point)
@@ -217,8 +202,6 @@ def RunCommand(is_interactive):
         artist.draw_faces(join_faces=True)
 
     
-        
-
 
 if __name__ == '__main__':
     RunCommand(True) 
