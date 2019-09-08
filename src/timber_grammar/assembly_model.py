@@ -202,57 +202,59 @@ class Model(object):
         #calculate distance from projected points to match_beam[0]plane
         for pt in projected_point_list:
             match_beam_joint_distance = match_beam.Get_distancefromBeamYZFrame(pt)
-            joint = Joint_90lap(match_beam_joint_distance,3,100,50,100)
+            joint = Joint_90lap(match_beam_joint_distance,3,100,50,100) #match_beam joint face is always 3 
             match_beam.joints.append(joint)
             joint.update_joint_mesh(match_beam)
-            match_beam.update_mesh()
+        #performs multiple booleans in 1 call    
+        match_beam.update_mesh()
 
  
 if __name__ == '__main__':
-   import compas
-   from compas.datastructures import Mesh
-   from compas.geometry import Frame
-   from compas_rhino.artists import MeshArtist
-   from compas_rhino.artists import Artist
-   from Joint_90lap import Joint_90lap
-   from id_generator import create_id
-   
-  
-   beam = Beam(Frame.worldXY(),1000,100,150,create_id())
+    pass
+    # import compas
+    # from compas.datastructures import Mesh
+    # from compas.geometry import Frame
+    # from compas_rhino.artists import MeshArtist
+    # from compas_rhino.artists import Artist
+    # from Joint_90lap import Joint_90lap
+    # from id_generator import create_id
 
 
-   beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-   from compas.geometry import Translation
-   joint_frame = beam.frame.transformed(Translation([200,0,0]))
-   beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
-
-   beam.update_mesh()
-
-  
-   model = Model()
-   model.beams.append(beam)
+    # beam = Beam(Frame.worldXY(),1000,100,150,create_id())
 
 
-   model.to_json("model.json")
-   loaded_model = Model.from_json("model.json")
-   loaded_model.to_json("model2.json")
+    # beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
+    # from compas.geometry import Translation
+    # joint_frame = beam.frame.transformed(Translation([200,0,0]))
+    # beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
 
-   print ("Comparing two data dictionary:")
-   assert (model.data == loaded_model.data)
-   if (model.data == loaded_model.data) :
-       print("Correct") 
-   else:
-       print("Incorrect")
-   
+    # beam.update_mesh()
 
-    m = Model()
-    m.create_beam(Frame.worldXY(),10,20,30,name)
-    t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
 
-    m.to_json("august.json",pretty=True)
-    
-    loaded_beam = m.from_json("august.json")
-    print(loaded_beam)
-    print(loaded_beam.data)
+    # model = Model()
+    # model.beams.append(beam)
+
+
+    # model.to_json("model.json")
+    # loaded_model = Model.from_json("model.json")
+    # loaded_model.to_json("model2.json")
+
+    # print ("Comparing two data dictionary:")
+    # assert (model.data == loaded_model.data)
+    # if (model.data == loaded_model.data) :
+    #     print("Correct") 
+    # else:
+    #     print("Incorrect")
+
+
+    # m = Model()
+    # m.create_beam(Frame.worldXY(),10,20,30,name)
+    # t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
+
+    # m.to_json("august.json",pretty=True)
+
+    # loaded_beam = m.from_json("august.json")
+    # print(loaded_beam)
+    # print(loaded_beam.data)
 
         
