@@ -161,7 +161,7 @@ class Model(object):
         #Add Beam 2 to model
         #get match_beam_frame
         face_frame = beam.face_frame(face_id)
-        match_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_from_start-50) , 0, beam.height + ext_end]) 
+        match_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_from_start-50) , 0, beam.height + ext_start]) 
         match_beam_frame = Frame(match_beam_origin, face_frame.normal * -1.0, face_frame.yaxis)
         #length of match beam 
         length = ext_end + ext_start + beam.height #height is picked instead of heard coding 100 since the frame is always created on the face(XZPlane)
@@ -172,40 +172,55 @@ class Model(object):
 
         #Add joint90Lap to Beam 2
         #Update mesh of 2 new joints and 2 beams
-        match_beam_joint = Joint_90lap((ext_end+50),3,100,50,100)
+        match_beam_joint = Joint_90lap((ext_start+50),3,100,50,100)
         match_beam.joints.append(match_beam_joint)
         match_beam_joint.update_joint_mesh(match_beam)
         match_beam.update_mesh()
+
+        return [match_beam_origin]
     
-    def rule_Connect_90lap(self,selected_beams,projected_point_list,face_id,beam_length,ext_end,name):
+    def rule_Connect_90lap(self,selected_beams,projected_point_list,face_ids,beam_length,ext_start,name):
 
         #create joints on selected beams 
-
         joint_distance_to_selectedBeams = []
-        for beam in selected_beams:
-            for pt in projected_point_list:
-                joint_distance = beam.Get_distancefromBeamYZFrame(pt)
-                joint_distance_to_selectedBeams.append(joint_distance)
-                joint = Joint_90lap(joint_distance,face_id,100,50,100)
-                beam.joints.append(joint)
-                joint.update_joint_mesh(beam)
-                beam.update_mesh()
+        for i in range (len(selected_beams)):
+            print("Adding Joint to Beam: ", i)
+            #Prepare information
+            selected_beam =  selected_beams[i]
+            projected_point = projected_point_list[i]
+            face_id = face_ids[i]
+            print(face_id)
+            joint_distance = selected_beam.Get_distancefromBeamYZFrame(projected_point)
+            joint_distance_to_selectedBeams.append(joint_distance)
+            #Create Joint
+            new_joint = Joint_90lap(joint_distance,face_id,100,50,100)
+            #Add new Joint to Beam and update beam mesh
+            selected_beam.joints.append(new_joint)
+            new_joint.update_joint_mesh(selected_beam)
+            selected_beam.update_mesh()
 
+            
         #Add match beam 
         #####get beam frame 
-        face_frame = selected_beams[0].face_frame(face_id)
-        connection_beam_origin = face_frame.represent_point_in_global_coordinates([(joint_distance_to_selectedBeams[0]-50),0, ext_end])
+        #construct a frame similar to face frame with max point as origin 
+        
+        face_frame = selected_beams[0].face_frame(face_ids[0])
+        max_point_frame = Frame(face_frame.point,face_frame.xaxis,face_frame.yaxis)
+        connection_beam_origin = max_point_frame.represent_point_in_global_coordinates([(joint_distance_to_selectedBeams[0]-50),0, ext_start])
         connection_beam_frame = Frame(connection_beam_origin, face_frame.normal * -1.0, face_frame.yaxis)
 
         match_beam = self.rule_create_beam(connection_beam_frame,beam_length,100,100,name)
 
         #calculate distance from projected points to match_beam[0]plane
-        for pt in projected_point_list:
+        for i in range(len(projected_point_list)):
+            print("Adding Joint " , i)
+            pt = projected_point_list[i]
             match_beam_joint_distance = match_beam.Get_distancefromBeamYZFrame(pt)
             joint = Joint_90lap(match_beam_joint_distance,3,100,50,100) #match_beam joint face is always 3 
             match_beam.joints.append(joint)
             joint.update_joint_mesh(match_beam)
-        #performs multiple booleans in 1 call    
+
+        #performs multiple booleans in 1 call   
         match_beam.update_mesh()
 
  

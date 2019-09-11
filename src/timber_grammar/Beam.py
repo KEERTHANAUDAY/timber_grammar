@@ -14,7 +14,7 @@ import json
 
 from compas.rpc import Proxy
 import sys
-python_exe_path = sys.executable
+python_exe_path = "C:\\Users\\ukeer\\Anaconda3\\envs\\thesis\\python.exe" #sys.executable
 
 class Beam(object):
     """ Beam class creates beams and performs booleans(called through tri
@@ -188,10 +188,27 @@ class Beam(object):
         ----------
         self.mesh is updated.
         '''
+        # self.mesh = self.draw_uncut_mesh()
+        # for joint in self.joints:
+        #     self.mesh = self.trimesh_proxy_subtract(self.mesh,joint.mesh) #why am i giving joint.mesh and not joint, isn't trimesh_proxy_subtract a classmethod?
+        # self.mesh.name = self.name
+        
+        #Create a list of meshes for boolean.
+        meshes = []
+        #First mesh in the list is the uncut beam mesh
         self.mesh = self.draw_uncut_mesh()
-        for joint in self.joints:
-            self.mesh = self.trimesh_proxy_subtract(self.mesh,joint.mesh) #why am i giving joint.mesh and not joint, isn't trimesh_proxy_subtract a classmethod?
+        if len(self.joints) > 0 :
+            meshes.append(self.mesh)
+
+            #Extract mesh objects from each joint in the beam
+            for joint in self.joints:
+                meshes.append(joint.mesh)
+            
+            #Calls trimesh to perform boolean
+            self.mesh = self.trimesh_proxy_subtract_multiple(meshes) #why am i giving joint.mesh and not joint, isn't trimesh_proxy_subtract a classmethod?
+        
         self.mesh.name = self.name
+
         return self.mesh
     
     def Get_distancefromBeamYZFrame(self,placed_point):
@@ -207,6 +224,9 @@ class Beam(object):
         YZ_Plane = self.face_plane(0)
         dist = distance_point_plane(placed_point,YZ_Plane)
         return dist
+
+    def center_point_at_beam_start(self):
+        return self.frame.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
 
     # Here we compute the face_frame of the beam
     def face_frame(self,face_id):
@@ -240,31 +260,39 @@ class Beam(object):
 
         elif plane_id == 1:
             face_1 = self.face_frame(1).copy()
-            plane = Plane(face_1.point, origin_frame.normal)
+            plane = Plane(face_1.point, face_1.yaxis)
 
         elif plane_id == 2:
             face_2 = self.face_frame(2).copy()
-            plane = Plane(face_2.point, face_2.normal)
+            plane = Plane(face_2.point, face_2.yaxis)
 
         elif plane_id == 3:
             face_3 = self.face_frame(3).copy()
-            plane = Plane(face_3.point, face_3.normal)
+            plane = Plane(face_3.point, face_3.yaxis)
 
         elif plane_id == 4:
             face_4 = self.face_frame(4).copy()
-            plane = Plane(face_4.point, face_4.normal)
+            plane = Plane(face_4.point, face_4.yaxis)
 
         elif plane_id == 5: #horizontal plane that at the center of the beam 
-            center_horizontal_plane = self.face_frame(1).copy()
-            new_point = center_horizontal_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
-            plane = Plane(new_point, center_horizontal_plane.normal)
+            center_point = self.center_point_at_beam_start()
+            plane = Plane(center_point, self.frame.normal)
 
         elif plane_id == 6: #vertical plane that at the center of the beam 
-            center_vertical_plane = self.face_frame(2).copy()
-            new_point = center_vertical_plane.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
-            plane = Plane(new_point, center_vertical_plane.normal)
+            center_point = self.center_point_at_beam_start()
+            plane = Plane(center_point, self.frame.yaxis)
             
         return plane
+
+    def neighbour_face_plane(self,plane_id):
+        if plane_id == 1:
+            return [self.face_plane(2),self.face_plane(4)]
+        if plane_id == 2:
+            return [self.face_plane(3),self.face_plane(1)]
+        if plane_id == 3:
+            return [self.face_plane(4),self.face_plane(2)]
+        if plane_id == 4:
+            return [self.face_plane(1),self.face_plane(3)]
 
     def draw_uncut_mesh(self):
         '''Computes and returns the beam geometry.
@@ -294,11 +322,31 @@ class Beam(object):
         compas.datastructures.Mesh
 
         '''
-        with Proxy(package='Trimesh_proxy',python=python_exe_path) as f:
+        # with Proxy(package='Trimesh_proxy',python=python_exe_path) as f:
+        with Proxy(package='timber_grammar.Trimesh_proxy',python=python_exe_path) as f:
             result = f.trimesh_subtract(mesh_a, mesh_b)
             result_mesh = Mesh.from_data(result['value'])
         return result_mesh
 
+    @classmethod #hence does not rely on the instance of the Beam class, inout of the type is enough
+    def trimesh_proxy_subtract_multiple(cls,meshes):
+        '''Computes boolean through trimesh by calling compas proxy.
+
+        Returns
+        -------
+        compas.datastructures.Mesh
+
+        '''
+        with Proxy(package='timber_grammar.Trimesh_proxy',python=python_exe_path) as f:
+            result = f.trimesh_subtract_multiple(meshes)
+            result_mesh = Mesh.from_data(result['value'])
+        return result_mesh
+
+        # with Proxy(package='Trimesh_proxy',python=python_exe_path) as f:
+        #     result = f.trimesh_subtract_multiple(meshes)
+        #     result_mesh = Mesh.from_data(result['value'])
+        # return result_mesh
+        
         
 if __name__ == '__main__':
     #Test 1 : Beam data to be saved and loaded and the two should be the same.
@@ -310,7 +358,7 @@ if __name__ == '__main__':
     from compas.geometry import Vector
     from compas.geometry._primitives import Frame
     from compas.geometry._primitives.box import Box
-
+    from Joint_90lap import Joint_90lap
     from id_generator import create_id
 
     name = create_id()
@@ -318,8 +366,9 @@ if __name__ == '__main__':
     #Create Beam object
     #beam = Beam(Frame.worldYZ(),1000,100,150,name)
     beam = Beam(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,name)
-
+    beam.joints.append(Joint_90lap(100,3,100,100,50))
     #Update mesh - Boolean the joints from Mesh
+    beam.joints[0].update_joint_mesh(beam)
     beam.update_mesh() 
 
     #Save Beam to Json

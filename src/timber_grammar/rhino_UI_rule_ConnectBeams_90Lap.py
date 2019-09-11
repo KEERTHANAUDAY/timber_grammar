@@ -1,4 +1,4 @@
-
+ 
 import rhinoscriptsyntax as rs
 import Rhino 
 import scriptcontext as sc
@@ -20,7 +20,12 @@ from compas.geometry import is_point_on_plane
 from compas.geometry import project_points_plane
 from compas.geometry import distance_point_point
 from compas.geometry import is_intersection_plane_plane
+from compas.geometry import intersection_line_plane
 from compas.geometry import Point
+from compas.geometry import add_vectors
+from compas.geometry import scale_vector
+from compas.geometry import Line
+from compas.geometry import Plane
 from compas_rhino.artists import Artist
 from compas_rhino.artists import MeshArtist
 
@@ -29,26 +34,23 @@ __commandname__ = "rule_ConnectBeams_90Lap"
 
 def check_for_parallel_vectors(start_beam,beams_to_check):
     #this function is only used once 
-    #check is used to make sure all instances are true, not sure how to eleminate it
-    check = None
+
     a = start_beam.frame.xaxis
     for beam in beams_to_check:  
-        tol = 1.0
+        tol = 1.0e-5
         b = beam.frame.xaxis
-        if dot_vectors(a,b) != tol:
+        if (abs(dot_vectors(a,b)) - 1.0) > tol:
             return False
-        else:
-            check = True
 
-    if check == True:
-        return True 
-
+    return True 
+S
 
 def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
 
     #this function is only used once 
 
-    match_plane = [] #zero index 
+    match_plane = [] #zero index retun index not plane 
+    face_ids = []
     for beam in beams_to_connect:
         for i in range(1,5):
             beam_plane = beam.face_plane(i).copy()
@@ -57,10 +59,11 @@ def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
             test_2 = is_point_on_plane(beam_origin,start_beam_plane)
             if test_1 == True and test_2 == True:
                 match_plane.append(beam_plane)
+                face_ids.append(i)
             else:
                 pass 
     if len(match_plane) == len(beams_to_connect):
-        return match_plane
+        return [match_plane,face_ids]
 
     else:
         return False 
@@ -86,101 +89,121 @@ def RunCommand(is_interactive):
     start_beam = selected_beams[0]
     beams_to_connect = selected_beams[1:]   
     parallel_check = check_for_parallel_vectors(start_beam,beams_to_connect)
-
     if parallel_check != True:
         raise IndexError('beams are not parallel')
-
     else: 
         print("beams are parallel")
 
+
     #check for coplanarity, uses the function above 
     coplanar_planes = {}
+    face_ids_coplanar_planes = {}
     for i in range(1,5):
         start_beam_plane = start_beam.face_plane(i).copy()
         start_beam_origin = start_beam_plane.point
         a = get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect)
         if a != False:
-            coplanar_planes[''+str(i)] = a         
+            coplanar_planes[''+str(i)] = a[0]  
+            face_ids_coplanar_planes[''+str(i)] = a[1]
         else:
             pass
-
+    print("face_dictionary here",face_ids_coplanar_planes)
     if len(coplanar_planes.keys()) == 2:
         print("'success",coplanar_planes)
-
     else:
         raise IndexError('beams are not coplanar')
     
-    #possible faces to create joint if the coplanar faces are 1&3 the faces to create a joint would be 2&4
-    if coplanar_planes.keys()[0] == "1" or coplanar_planes.keys()[0] == "3":
-        face_option_1 = "2"
-        face_option_2 = "4"
-    if coplanar_planes.keys()[0] == "2" or coplanar_planes.keys()[0] == "4":
-        face_option_1 = "1"
-        face_option_2 = "3"
-    
+
     #user inputs
-    face_id = rs.GetInteger(("possible face connections "+"face_id "+ face_option_1 +" or face_id "+ face_option_2),None,None,None)
+    face_id = rs.GetInteger(("possible face connections "+"face_id "+  coplanar_planes.keys()[0] +" or face_id "+  coplanar_planes.keys()[1]),None,None,None)
     start_point = (helper.Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge"))
-    ext_start = rs.GetReal("extension length start",None,None,None)
-    ext_end = rs.GetReal("extension length end",None,None,None)
+    ext_start = rs.GetReal("extension length start",200,None,None)
+    ext_end = rs.GetReal("extension length end",200,None,None)
+
+    #list of coplanar planes extracted from coplanar_planes dict using face_id as key
+    coplanar_planes_along_selected_face = []
+    coplanar_planes_along_selected_face.append(start_beam.face_plane(face_id).copy())
+    for key,value in coplanar_planes.items():
+        if key == ""+str(face_id):
+            coplanar_planes_along_selected_face.extend(value)
+
+    #list of face_ids of coplanar planes 
+    coplanar_face_ids = []
+    coplanar_face_ids.append(face_id)
+    for key,value in face_ids_coplanar_planes.items():
+        if key == ""+str(face_id):
+            coplanar_face_ids.extend(value)
 
 
-    #project points, this would need a plane perpendicular to the coplanar planes
-        #find perpendicular planes to project points  
+    #intersection points by passing a line from the origin of start beam to the adjacent planes of the coplanar planes of all beams
+    points_to_compare = [] 
+    for i in range(len(selected_beams)):
+        beam = selected_beams[i]
+        start_beam_selected_face_frame = selected_beams[0].face_frame(face_id)  
+        line_pt_a =  start_beam_selected_face_frame.point
+        normal = start_beam_selected_face_frame.normal
+        line_pt_b =  add_vectors(line_pt_a,scale_vector(normal,0.3))
+        line_to_intersect = Line(line_pt_a,line_pt_b)
+
+        face_index = coplanar_face_ids[i]
+        adjacent_planes = beam.neighbour_face_plane(face_index)
+        for p in adjacent_planes:
+            intersection_point = intersection_line_plane(line_to_intersect,p)
+            points_to_compare.append(intersection_point)
+
+
+    viz_pts = []
+    #project distance from  points_to_compare to the plane of the start Beam 
+    distances = []
+    start_beam_face_frame = start_beam.face_frame(face_id).copy()
+    start_beam_Plane_perpendicular_to_face_id_Plane = Plane(start_beam_face_frame.point,start_beam_face_frame.normal)
+    viz_pts.append(start_beam_Plane_perpendicular_to_face_id_Plane.point)
+    for point in points_to_compare:
+        viz_pts.append(point)
+        vector = subtract_vectors(point, start_beam_Plane_perpendicular_to_face_id_Plane.point)
+        distances.append(dot_vectors(vector, start_beam_Plane_perpendicular_to_face_id_Plane.normal))
+   
+
+    #search to find max point
+    maximum_distance = max(distances)
+    minimum_distance = min(distances)
+    beam_length = (maximum_distance - minimum_distance) + ext_start + ext_end 
+    ext_len = maximum_distance + ext_start
+                
+    #project selected point to perpendicular planes of the beams to connect 
     if coplanar_planes.keys()[0] == "1" or  coplanar_planes.keys()[0] == "3":
-        start_beam_perpendicular_plane = start_beam.face_plane(6).copy()
+        start_beam_perpendicular_plane = start_beam.face_plane(5).copy()
     
     elif coplanar_planes.keys()[0] == "2" or  coplanar_planes.keys()[0] == "4":
-        start_beam_perpendicular_plane = start_beam.face_plane(5).copy() 
-
-        #checking which plane of the beams to connect is perpendicular to the start plane\
-        # there planes are all at the ceneter of the beam for convenience of calculating point position later   
+        start_beam_perpendicular_plane = start_beam.face_plane(6).copy() 
+  
+    tol = 1.0e-5
+    # tol = 5.0
     perpendicular_plane = []
     for beam in beams_to_connect:
         for i in range(5,7):
             beam_plane = beam.face_plane(i).copy()
+            print("beam_plane",beam_plane)
             angle_check = start_beam_perpendicular_plane.normal.angle(beam_plane.normal)
-            if angle_check ==0 or angle_check == 180:
+            print("angle",angle_check)
+            if (abs(angle_check) - 0) < tol or (abs(angle_check) - 180) < tol:
                 perpendicular_plane.append(beam_plane)
-
+            
+    print(perpendicular_plane)
+    print(len(perpendicular_plane))
     #project points
     projected_point_list = []
-    #correct start_point to center
     new_start_point = project_points_plane([start_point],start_beam_perpendicular_plane)
     projected_point_list.extend(new_start_point)
     for plane in perpendicular_plane:
        new_point = project_points_plane(new_start_point,plane)
        projected_point_list.extend(new_point)
 
-    pt_distance = []
-    for pt in projected_point_list[1:]:
-        pt_distance.append(distance_point_point(new_start_point[0],pt))
-    beam_length = max(pt_distance) + ext_start + ext_end + selected_beams[0].height #height is added considering the position of start point of translation 
-
-
-    #check if beams are to the right/left or top/bottom 
-    if face_id == 1 or face_id == 4:
-        if (selected_beams[0].frame.point.x > selected_beams[1].frame.point.x) or \
-            (selected_beams[0].frame.point.y < selected_beams[1].frame.point.y) or \
-                (selected_beams[0].frame.point.z < selected_beams[1].frame.point.z) :
-            new_ext_end = beam_length - ext_start
-            print("direction = left")
-        else:
-            new_ext_end = ext_end + selected_beams[0].height 
-            print("direction = right")
-    elif face_id == 2 or face_id == 3:
-        if (selected_beams[0].frame.point.x > selected_beams[1].frame.point.x) or \
-            (selected_beams[0].frame.point.y < selected_beams[1].frame.point.y) or \
-                (selected_beams[0].frame.point.z < selected_beams[1].frame.point.z) :
-            new_ext_end = ext_end + selected_beams[0].height 
-            print("direction = right")          
-        else:
-            new_ext_end = beam_length - ext_start
-            print("direction = left")
-
-
     #list of distance to move joints on match beam    
-    model.rule_Connect_90lap(selected_beams,projected_point_list,face_id,beam_length,new_ext_end,create_id())
+    model.rule_Connect_90lap(selected_beams,projected_point_list,coplanar_face_ids,beam_length,ext_len,create_id())
+    print(len(projected_point_list))
+    print(projected_point_list)
+
 
     #Data serialization 
     model.to_json("data.json", pretty = True)
@@ -190,7 +213,7 @@ def RunCommand(is_interactive):
     for pt in projected_point_list:
         a = (pt[0],pt[1],pt[2])
         viz_point.append({
-            'pos': a,
+            'pos': a, 
             'color': (0,255,0)
         })
 

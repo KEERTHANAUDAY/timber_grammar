@@ -1,3 +1,4 @@
+
 import rhinoscriptsyntax as rs
 import Rhino 
 import scriptcontext as sc
@@ -71,17 +72,26 @@ def RunCommand(is_interactive):
     #adding joints to selected Beam 
     #joint_distance_from_start = Get_distancefromBeamYZFrame(selected_beam,joint_point)
     joint_distance_from_start = selected_beam.Get_distancefromBeamYZFrame(joint_point)
-    model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
+    match_beam_origin =  model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
      
-    #create_match_beam with joint 
-#    model.match_beam(selected_beam,ext_a,ext_b,name,joint_point,face_id,helper.get_match_frame(face_id))
+
 
     #serialize data
     model.to_json("data.json", pretty = True)
-    
+
+    viz_point = []
+    for pt in match_beam_origin:
+        a = (pt[0],pt[1],pt[2])
+        viz_point.append({
+            'pos': a,
+            'color': (0,255,0)
+        })
+
+
     #Visualization 
     artist = MeshArtist(None, layer ='BEAM::Beams_out')
     artist.clear_layer()
+    artist.draw_points(viz_point)
     for beam in model.beams:
         artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
         artist.draw_faces(join_faces=True)

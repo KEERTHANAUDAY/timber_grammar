@@ -1,4 +1,4 @@
-__all__ = ['trimesh_subtract']
+__all__ = ['trimesh_subtract','trimesh_subtract_multiple']
 
 def trimesh_subtract(c_mesh1,c_mesh2):
     import compas
