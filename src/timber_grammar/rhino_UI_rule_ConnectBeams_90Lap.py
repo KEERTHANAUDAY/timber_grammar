@@ -1,4 +1,4 @@
- 
+
 import rhinoscriptsyntax as rs
 import Rhino 
 import scriptcontext as sc
@@ -39,11 +39,11 @@ def check_for_parallel_vectors(start_beam,beams_to_check):
     for beam in beams_to_check:  
         tol = 1.0e-5
         b = beam.frame.xaxis
-        if (abs(dot_vectors(a,b)) - 1.0) > tol:
+        if abs(abs(dot_vectors(a,b)) - 1.0) > tol:
             return False
 
     return True 
-S
+
 
 def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
 
@@ -61,6 +61,7 @@ def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
                 match_plane.append(beam_plane)
                 face_ids.append(i)
             else:
+                print("i"+ str(i))
                 pass 
     if len(match_plane) == len(beams_to_connect):
         return [match_plane,face_ids]
