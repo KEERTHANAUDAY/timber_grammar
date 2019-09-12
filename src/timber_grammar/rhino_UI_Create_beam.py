@@ -18,7 +18,7 @@ __commandname__ = "CreateBeam"
 def RunCommand( is_interactive ):
 
     #load Derivation and model
-    derivation = Derivation.from_json("derivation.json")
+    derivation = Derivation.from_json(rhino_UI_utilities.get_json_file_location())
     model = derivation.get_next_step()
 
     #user input
@@ -37,7 +37,7 @@ def RunCommand( is_interactive ):
 
     
     #Save Derivation (Model is also saved)
-    derivation.to_json("derivation.json", pretty = True)
+    derivation.to_json(rhino_UI_utilities.get_json_file_location(), pretty = True)
     
     #Visualization
     artist = MeshArtist(None, layer ='BEAM::Beams_out')

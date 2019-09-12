@@ -9,6 +9,7 @@ import compas.geometry
 
 from assembly_model import Model
 from Derivation import Derivation
+import rhino_UI_utilities
 from rhino_UI_utilities import UI_helpers
 from id_generator import create_id
 
@@ -29,6 +30,7 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas_rhino.artists import Artist
 from compas_rhino.artists import MeshArtist
+
 
 
 __commandname__ = "rule_ConnectBeams_90Lap"
@@ -74,7 +76,7 @@ def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
 def RunCommand(is_interactive):
 
     #load Derivation and model
-    derivation = Derivation.from_json("derivation.json")
+    derivation = Derivation.from_json(rhino_UI_utilities.get_json_file_location())
     model = derivation.get_next_step()
 
     #select beams
@@ -209,7 +211,7 @@ def RunCommand(is_interactive):
 
 
     #Save Derivation (Model is also saved)
-    derivation.to_json("derivation.json", pretty = True)
+    derivation.to_json(rhino_UI_utilities.get_json_file_location(), pretty = True)
     
     # Visualization 
     viz_point = []

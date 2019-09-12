@@ -10,6 +10,7 @@ from Joint_90lap import Joint_90lap
 
 from id_generator import create_id
 from rhino_UI_utilities import UI_helpers
+import rhino_UI_utilities
 
 import compas
 from compas.datastructures import Mesh
@@ -48,7 +49,7 @@ def RunCommand(is_interactive):
     None
     """
     #load Derivation and model
-    derivation = Derivation.from_json("derivation.json")
+    derivation = Derivation.from_json(rhino_UI_utilities.get_json_file_location())
     model = derivation.get_next_step()
 
     #Select mesh 
@@ -80,7 +81,7 @@ def RunCommand(is_interactive):
 
 
     #Save Derivation (Model is also saved)
-    derivation.to_json("derivation.json", pretty = True)
+    derivation.to_json(rhino_UI_utilities.get_json_file_location(), pretty = True)
 
     #Visualization
     viz_point = []
