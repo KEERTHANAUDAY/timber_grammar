@@ -125,12 +125,25 @@ class UI_helpers(object):
         assert (selected_beam != None for selected_beam in selected_beams)
         return (selected_beams)
 
+## Reimplementation of COMPAS because some user do not have latest COMPAS
+def get_document_basename():
+    return rs.DocumentName()
+
+def get_document_filename():
+    import os
+    basename = get_document_basename()
+    if not basename:
+        return None
+    return os.path.splitext(basename)[0]
+
+def get_document_filepath():
+    return rs.DocumentPath()
+
 def get_json_file_location():
-    import compas_rhino.utilities as utilities
-    filename = utilities.get_document_filename()
+    filename = get_document_filename()
     if not filename: return None
     
-    path = utilities.get_document_filepath()
+    path = get_document_filepath()
     return path + filename + ".json"
 
 
