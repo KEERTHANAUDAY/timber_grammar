@@ -8,6 +8,7 @@ import compas
 import compas.geometry
 
 from assembly_model import Model
+from Derivation import Derivation
 from rhino_UI_utilities import UI_helpers
 from id_generator import create_id
 
@@ -72,8 +73,9 @@ def get_coplanar_planes(start_beam_plane,start_beam_origin,beams_to_connect):
 
 def RunCommand(is_interactive):
 
-    #load model
-    model = Model.from_json("data.json")
+    #load Derivation and model
+    derivation = Derivation.from_json("derivation.json")
+    model = derivation.get_next_step()
 
     #select beams
     selection_reference = []
@@ -206,8 +208,8 @@ def RunCommand(is_interactive):
     print(projected_point_list)
 
 
-    #Data serialization 
-    model.to_json("data.json", pretty = True)
+    #Save Derivation (Model is also saved)
+    derivation.to_json("derivation.json", pretty = True)
     
     # Visualization 
     viz_point = []

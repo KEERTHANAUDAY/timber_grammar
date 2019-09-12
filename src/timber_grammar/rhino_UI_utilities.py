@@ -109,6 +109,7 @@ class UI_helpers(object):
             return start_frame
         else:
             pass
+
     def extract_BeambyName(self,model, obj_refs):
         """Extracts the Beam object by peforming a name search 
         ---------
@@ -124,6 +125,13 @@ class UI_helpers(object):
         assert (selected_beam != None for selected_beam in selected_beams)
         return (selected_beams)
 
+def get_json_file_location():
+    import compas_rhino.utilities as utilities
+    filename = utilities.get_document_filename()
+    if not filename: return None
+    
+    path = utilities.get_document_filepath()
+    return path + filename + ".json"
 
 
 

@@ -2,9 +2,13 @@ import rhinoscriptsyntax as rs
 
 import Rhino
 import compas
+
 from compas.geometry import Frame
 from id_generator import create_id
+import rhino_UI_utilities
+
 from assembly_model import Model
+from Derivation import Derivation
 from compas_rhino.artists import MeshArtist
 from compas_rhino.artists import Artist
 
@@ -12,8 +16,10 @@ __commandname__ = "CreateBeam"
 
 
 def RunCommand( is_interactive ):
-    #load model
-    model = Model.from_json("data.json")
+
+    #load Derivation and model
+    derivation = Derivation.from_json("derivation.json")
+    model = derivation.get_next_step()
 
     #user input
     rc, corners = Rhino.Input.RhinoGet.GetRectangle()
@@ -30,8 +36,8 @@ def RunCommand( is_interactive ):
     model.rule_create_beam(beam_frame,length,100,100,name)
 
     
-    #Data serialization 
-    model.to_json("data.json", pretty = True)
+    #Save Derivation (Model is also saved)
+    derivation.to_json("derivation.json", pretty = True)
     
     #Visualization
     artist = MeshArtist(None, layer ='BEAM::Beams_out')

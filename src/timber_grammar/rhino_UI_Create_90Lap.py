@@ -4,8 +4,10 @@ import Rhino
 import scriptcontext as sc
 
 from assembly_model import Model
-from Joint_90lap import Joint_90lap 
+from Derivation import Derivation
 from Beam import Beam
+from Joint_90lap import Joint_90lap 
+
 from id_generator import create_id
 from rhino_UI_utilities import UI_helpers
 
@@ -45,8 +47,9 @@ def RunCommand(is_interactive):
     ------
     None
     """
-    #load model
-    model = Model.from_json("data.json")
+    #load Derivation and model
+    derivation = Derivation.from_json("derivation.json")
+    model = derivation.get_next_step()
 
     #Select mesh 
     Obj_ref = rs.GetObject(message = "select mesh(es)", filter = 32, preselect = False, subobjects = True)
@@ -65,8 +68,8 @@ def RunCommand(is_interactive):
     helper = UI_helpers()
     joint_point = helper.Get_SelectPointOnMeshEdge("Select mesh edge","Pick point on edge")
 
-    ext_start = rs.GetReal("extension start ",None,None,None)
-    ext_end = rs.GetReal("extension end ",None,None,None)
+    ext_start = rs.GetReal("extension start ",200,None,None)
+    ext_end = rs.GetReal("extension end ",200,None,None)
     name = create_id() 
     
     #adding joints to selected Beam 
@@ -76,9 +79,10 @@ def RunCommand(is_interactive):
      
 
 
-    #serialize data
-    model.to_json("data.json", pretty = True)
+    #Save Derivation (Model is also saved)
+    derivation.to_json("derivation.json", pretty = True)
 
+    #Visualization
     viz_point = []
     for pt in match_beam_origin:
         a = (pt[0],pt[1],pt[2])

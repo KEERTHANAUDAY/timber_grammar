@@ -14,7 +14,8 @@ import json
 
 from compas.rpc import Proxy
 import sys
-python_exe_path = "C:\\Users\\ukeer\\Anaconda3\\envs\\thesis\\python.exe" #sys.executable
+python_exe_path = None
+#python_exe_path = "C:\\Users\\ukeer\\Anaconda3\\envs\\thesis\\python.exe" #sys.executable
 
 class Beam(object):
     """ Beam class creates beams and performs booleans(called through tri
@@ -154,7 +155,7 @@ class Beam(object):
         # PATH = os.path.abspath(os.path.join(filepath, '..', 'data'))
         with open(filepath, 'r') as fp:
             data = json.load(fp)
-        print('type: ', data['type'])
+        print('Json Loaded: Type=', data['type'])
 
         assert data['type'] ==  cls.__name__ , "Deserialized object type: %s is not equal to %s." % (data['type'] , cls.__name__)
         return cls.from_data(data)
@@ -346,30 +347,35 @@ class Beam(object):
         #     result = f.trimesh_subtract_multiple(meshes)
         #     result_mesh = Mesh.from_data(result['value'])
         # return result_mesh
+
+    @classmethod
+    def debug_get_dummy_beam(cls, include_joint=False):
+        from compas.geometry._primitives import Frame
+        from compas.geometry._primitives import Point
+        from compas.geometry._primitives import Vector
+        from Joint_90lap import Joint_90lap
+        #Create Beam object
+        beam = cls(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,"dummy_beam_1")
+        #Create Joint object
+        if (include_joint):
+            beam.joints.append(Joint_90lap(100,3,100,100,50))
+            #Update mesh - Boolean the joints from Mesh
+            beam.joints[0].update_joint_mesh(beam)
         
+        beam.update_mesh() 
+        return beam
+
+
         
 if __name__ == '__main__':
-    #Test 1 : Beam data to be saved and loaded and the two should be the same.
     import compas
     import tempfile
     import os
-    from compas.datastructures import Mesh
-    from compas.geometry import Point
-    from compas.geometry import Vector
-    from compas.geometry._primitives import Frame
-    from compas.geometry._primitives.box import Box
-    from Joint_90lap import Joint_90lap
-    from id_generator import create_id
 
-    name = create_id()
+    #Test 1 : Beam data to be saved and loaded and the two should be the same.
+    beam = Beam.debug_get_dummy_beam()
 
-    #Create Beam object
-    #beam = Beam(Frame.worldYZ(),1000,100,150,name)
-    beam = Beam(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,name)
-    beam.joints.append(Joint_90lap(100,3,100,100,50))
-    #Update mesh - Boolean the joints from Mesh
-    beam.joints[0].update_joint_mesh(beam)
-    beam.update_mesh() 
+    print("Test 1: Beam Data Save and Load to JSON")
 
     #Save Beam to Json
     beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
@@ -386,20 +392,15 @@ if __name__ == '__main__':
         print("Correct") 
     else:
         print("Incorrect")
-    
+        
+    print("-- -- -- -- -- -- -- --")
 
-    print(beam.frame)
-    for i in range (4):
-        print (beam.face_frame(i+1))
-    
+  
     #Test 2 : Beam with Joint data attached and saved and loaded.
-    from Joint_90lap import Joint_90lap
+    print("Test 2: Beam with Joint Data Attached")
 
     #Create some joints on the beam
-    new_joint = Joint_90lap(180,1,50,100,100)
-    beam.joints.append(new_joint) #Note that the position of the joint is dummy data.
-    new_joint.update_joint_mesh(beam)
-    beam.update_mesh()
+    beam = Beam.debug_get_dummy_beam(include_joint=True)
 
     #Save Beam with the appended Joint to Json
     beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
@@ -413,4 +414,10 @@ if __name__ == '__main__':
         print("Correct") 
     else:
         print("Incorrect")
+
+    print("-- -- -- -- -- -- -- --")
+
+    print("Test 3: Print out dummy beam (with Joint) data")
     print (beam.data)
+
+    print("-- -- -- -- -- -- -- --")

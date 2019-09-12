@@ -1,5 +1,4 @@
 import compas
-import os 
 import json
 from Beam import Beam
 
@@ -107,6 +106,9 @@ class Model(object):
         # PATH = os.path.abspath(os.path.join(filepath, '..', 'data'))
         with open(filepath, 'r') as fp:
             data = json.load(fp)
+        print('Json Loaded: Type=', data['type'])
+        
+        assert data['type'] ==  cls.__name__ , "Deserialized object type: %s is not equal to %s." % (data['type'] , cls.__name__)
         return cls.from_data(data)
 
     def to_json(self, filepath, pretty=False):
@@ -225,51 +227,36 @@ class Model(object):
 
  
 if __name__ == '__main__':
-    pass
-    # import compas
-    # from compas.datastructures import Mesh
-    # from compas.geometry import Frame
-    # from compas_rhino.artists import MeshArtist
-    # from compas_rhino.artists import Artist
-    # from Joint_90lap import Joint_90lap
-    # from id_generator import create_id
+    import compas
+    import tempfile
+    import os
 
+    #Test 1 : Save a model and load it back and compare their data
+    print("Test 1: Model Data Save and Load to JSON")
 
-    # beam = Beam(Frame.worldXY(),1000,100,150,create_id())
+    #Create Beam object
+    beam = Beam.debug_get_dummy_beam(include_joint=True)
 
+    #Add beam to model
+    model = Model()
+    model.beams.append(beam)
 
-    # beam.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100)) #Note that the position of the joint is dummy data.
-    # from compas.geometry import Translation
-    # joint_frame = beam.frame.transformed(Translation([200,0,0]))
-    # beam.joints.append(Joint_90lap(joint_frame,3,50,100,100)) #Note that the position of the joint is dummy data.
+    #Save Model 
+    model.to_json(os.path.join(tempfile.gettempdir(), "model.json"),pretty=True)
+    
+    #Load the saved Model
+    loaded_model = Model.from_json(os.path.join(tempfile.gettempdir(), "model.json"))
 
-    # beam.update_mesh()
+    print("Test 1: Comparing two Model's data dictionary:")
+    assert (model.data == loaded_model.data)
+    if (model.data == loaded_model.data):
+        print("Correct") 
+    else:
+        print("Incorrect")
 
+    print("-- -- -- -- -- -- -- --")
 
-    # model = Model()
-    # model.beams.append(beam)
+    print("Test 3: Print out dummy beam (with Joint) data")
+    print (model.data)
 
-
-    # model.to_json("model.json")
-    # loaded_model = Model.from_json("model.json")
-    # loaded_model.to_json("model2.json")
-
-    # print ("Comparing two data dictionary:")
-    # assert (model.data == loaded_model.data)
-    # if (model.data == loaded_model.data) :
-    #     print("Correct") 
-    # else:
-    #     print("Incorrect")
-
-
-    # m = Model()
-    # m.create_beam(Frame.worldXY(),10,20,30,name)
-    # t.joints.append(Joint_90lap(Frame.worldXY(),1,50,100,100))
-
-    # m.to_json("august.json",pretty=True)
-
-    # loaded_beam = m.from_json("august.json")
-    # print(loaded_beam)
-    # print(loaded_beam.data)
-
-        
+    print("-- -- -- -- -- -- -- --")       
