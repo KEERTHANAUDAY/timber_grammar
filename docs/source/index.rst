@@ -1,9 +1,9 @@
-.. Timber_grammar documentation master file, created by
-   sphinx-quickstart on Sat Sep 14 00:23:23 2019.
+.. Timber_Grammar documentation master file, created by
+   sphinx-quickstart on Wed Sep 18 16:55:49 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Timber_grammar's documentation!
+Welcome to Timber_Grammar's documentation!
 ==========================================
 
 .. toctree::
