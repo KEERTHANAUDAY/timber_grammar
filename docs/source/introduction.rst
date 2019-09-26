@@ -4,7 +4,8 @@ Introduction
 Setup Environments
 --------------------
 
-1. Clone from `GitHub <https://github.com/ytakzk/Gradual-Assemblies>`_
+1. Clone from `GitHub <https://github.com/KEERTHANAUDAY/timber_grammar>`_
+
 
 2. Open Rhinoceros
 
