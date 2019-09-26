@@ -8,6 +8,7 @@ lap, tenon, splice joint and their respective sub rule transformations. The main
 has been developed with the Framework (:mod:`compas`) and the Rhino UI wrapper functions
 are developed with (:mod:`RhinoCommon`)
 
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/tool_structure.png
 
 
 Shape Grammars
