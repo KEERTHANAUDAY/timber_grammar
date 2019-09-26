@@ -20,7 +20,7 @@ autodoc_mock_imports = ['Rhino', 'System']
 
 project = 'Timber_Grammar'
 copyright = '2019, Keerthana Udaykumar, Victor Leung'
-author = 'Keerthana Udaykumar'
+author = 'Keerthana Udaykumar, Victor Leung'
 
 
 # -- General configuration ---------------------------------------------------
