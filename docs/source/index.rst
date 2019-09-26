@@ -10,6 +10,10 @@ Welcome to Timber_Grammar's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   introduction.rst
+   example.rst
+   api.rst
+
 
 
 Indices and tables
