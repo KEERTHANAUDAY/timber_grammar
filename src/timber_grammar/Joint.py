@@ -3,25 +3,33 @@ import json
 class Joint(object):
 
     def __init__(self):
-        #Handel the creation of sub class objects
+        """Handel the creation of sub class objects
+        """
         pass
 
     @classmethod
     def from_data(cls,data):
         """Construct a Joint object from structured data.
         This class method must be overridden by an inherited class.
+
         Parameters
         ----------
+
         data : dict
             The data dictionary.
+            
         Returns
         -------
+
         object
             An object of the type (based on the 'type' value defined in data)
+
         Note
         ----
+
         This constructor method is meant to be used in conjuction with the
         corresponding *to_data* method.
+        
         """
         
         #Remember to update this list of import for each new classes that are inhereted from this super class
