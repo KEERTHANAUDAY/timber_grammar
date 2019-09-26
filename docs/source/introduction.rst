@@ -15,3 +15,15 @@ Shape grammars, defines a set of allowable shape transformations that can be use
 a language of spatial designs(Stiny 1968).
 
 .. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/Shape_Grammar_rule.png
+
+
+Geometry datastructure
+======================
+
+
+The geometry datastructure is built on the BTL format in order to pass each beam element
+of the finished structure directly to CNC fabricatable format. This also helps compute 
+rule tranformations at desired positions along each Beam. The data structure can be categorised 
+3 levels, primarity the geometry of each beam, at a higher level the datastructure of each 
+rule transformation and finally the network information of the entire derivation history of 
+a timber structure.

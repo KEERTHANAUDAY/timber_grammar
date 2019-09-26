@@ -1,4 +1,4 @@
-Introduction
+Getting started
 ================
 
 Setup Environments
