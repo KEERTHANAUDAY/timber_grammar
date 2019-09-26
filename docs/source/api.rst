@@ -28,7 +28,7 @@ timber_grammar.assembly_model module
     :show-inheritance:
 
 timber_grammar.Derivation module
----------------------------
+--------------------------------
 
 .. automodule:: timber_grammar.Derivation
     :members:
