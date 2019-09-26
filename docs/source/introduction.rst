@@ -13,3 +13,5 @@ Shape Grammars
 
 Shape grammars, defines a set of allowable shape transformations that can be used to generate 
 a language of spatial designs(Stiny 1968).
+
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/Shape_Grammar_rule.png

@@ -24,4 +24,6 @@ Setup Environments
 5. Restart Rhinoceros
 
 6. If successfully installed, timber_grammar UI icons appear on your toolbar
- 
+
+
+ .. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/Icons.PNG
