@@ -10,7 +10,8 @@ Setup Environments
 
 3. EditPythonScript -> Tools -> Options
 
-.. image:: https://raw.githubusercontent.com/ytakzk/Gradual_Assemblies/master/docs/source/_static/intro_editpythonscript.PNG
+.. image:: https://github.com/KEERTHANAUDAY/timber_grammar/blob/master/docs/source/_static/Install_1.PNG
+
 
 4. | Add a path to `UR_Control`
    | It depends where you locate this repository but it must be like "`C:\\Users\\{your_name}\\dfab\\Gradual-Assemblies\\UR_Control`"
