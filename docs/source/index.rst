@@ -11,6 +11,7 @@ Welcome to Timber_Grammar's documentation!
    :caption: Contents:
 
    introduction.rst
+   getting_started.rst
    example.rst
    api.rst
 
