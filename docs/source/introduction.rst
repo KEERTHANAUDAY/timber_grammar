@@ -11,7 +11,7 @@ Setup Environments
 
 3. EditPythonScript -> Tools -> Options
 
-.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/blob/master/docs/source/_static/Install.PNG
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/Install.PNG
 
 
 
