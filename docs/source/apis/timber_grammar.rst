@@ -4,7 +4,7 @@ timber_grammar package
 timber_grammar.Beam module
 --------------------------
 
-.. automodule:: Beam
+.. automodule:: timber_grammar.Beam
     :members:
     :undoc-members:
     :show-inheritance:
