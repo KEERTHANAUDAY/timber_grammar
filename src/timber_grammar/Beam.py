@@ -1,3 +1,13 @@
+#
+# Basic classes for timber_grammar
+#
+
+__author__ = "masdfab thesis timber_grammar"
+__status__ = "development"
+__version__ = "0.0.1"
+__date__    = "15 August 2019"
+
+
 import math
 import compas
 from compas.geometry import Box
@@ -189,12 +199,7 @@ class Beam(object):
         ----------
         self.mesh is updated.
         '''
-        # self.mesh = self.draw_uncut_mesh()
-        # for joint in self.joints:
-        #     self.mesh = self.trimesh_proxy_subtract(self.mesh,joint.mesh) #why am i giving joint.mesh and not joint, isn't trimesh_proxy_subtract a classmethod?
-        # self.mesh.name = self.name
-        
-        #Create a list of meshes for boolean.
+ 
         meshes = []
         #First mesh in the list is the uncut beam mesh
         self.mesh = self.draw_uncut_mesh()
