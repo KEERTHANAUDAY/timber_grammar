@@ -18,6 +18,7 @@ Setup Environments
 4. | Add a path to `UR_Control`
    | It depends where you locate this repository but it must be like "`C:\\Users\\{your_name}\\GitHub\\timber_grammar\\src`"
 
+
 .. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/file_path.PNG
 
 5. Restart Rhinoceros
