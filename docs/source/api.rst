@@ -14,7 +14,7 @@ timber_grammar.Beam module
 timber_grammar.Joint module
 ---------------------------
 
-.. automodule:: timber_grammar.Beam
+.. automodule:: timber_grammar.Joint
     :members:
     :undoc-members:
     :show-inheritance:
