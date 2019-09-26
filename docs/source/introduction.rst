@@ -11,7 +11,7 @@ Setup Environments
 
 3. EditPythonScript -> Tools -> Options
 
-
+.. image:: https://github.com/KEERTHANAUDAY/timber_grammar/blob/master/docs/source/_static/Install_1.PNG
 
 
 4. | Add a path to `UR_Control`
