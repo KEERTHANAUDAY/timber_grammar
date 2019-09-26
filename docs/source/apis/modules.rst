@@ -1,5 +1,5 @@
 timber_grammar
-========
+=============
 
 .. toctree::
    :maxdepth: 4

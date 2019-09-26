@@ -1,12 +1,13 @@
 ********************************************************************************
 Introduction
 ********************************************************************************
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/level_1.png
 
 timber_grammar provide functionality for applying a set of Shape Grammar rule transformations 
 for timber-timber joinery structures. For example some of the Grammar rule transformations are 
 lap, tenon, splice joint and their respective sub rule transformations. The main library
 has been developed with the Framework (:mod:`compas`) and the Rhino UI wrapper functions
-are developed with (:mod:`RhinoCommon`)
+are developed with (:mod:`RhinoCommon`).
 
 .. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/tool_structure.png
 
@@ -31,3 +32,9 @@ rule tranformations at desired positions along each Beam. The data structure can
 3 levels, primarity the geometry of each beam, at a higher level the datastructure of each 
 rule transformation and finally the network information of the entire derivation history of 
 a timber structure.
+
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/level_2.png
+
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/level_3.png
+
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/level_4.png
