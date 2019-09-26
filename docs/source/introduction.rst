@@ -4,7 +4,10 @@ Introduction
 
 timber_grammar provide functionality for applying a set of Shape Grammar rule transformations 
 for timber-timber joinery structures. For example some of the Grammar rule transformations are 
-lap, tenon, splice joint and their respective sub rule transformations.
+lap, tenon, splice joint and their respective sub rule transformations. The main library
+has been developed with the Framework (:mod:`compas`) and the Rhino UI wrapper functions
+are developed with (:mod:`RhinoCommon`)
+
 
 
 Shape Grammars
