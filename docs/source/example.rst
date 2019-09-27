@@ -9,7 +9,7 @@ Create Beam
 compas Frame: frame, x-axis: length, y-axis: width, z-axis: height
 
 
-.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create_beam.png
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/data.png
 
 
 How to Use
@@ -136,5 +136,5 @@ A class for rule derivation history
         model = derivation.get_step(step_id)
         step_id = step_id + 1
 
-.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/connect_beam.png
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/derive_gif.gif
 
