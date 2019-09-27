@@ -50,7 +50,7 @@ How to Use
         artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
         artist.draw_faces(join_faces=True)
 
-.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create beam.png
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create_beam.png
 
 
 rule 90 Lap
@@ -79,31 +79,37 @@ A class 90 Lap joint rule
     joint_distance_from_start = selected_beam.Get_distancefromBeamYZFrame(joint_point)
     match_beam_origin =  model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
      
-.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create beam.png
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/rule_90Lap.png
 
 
-Dowel Class
---------------------
+Connect beams  
+-------------
 
-A class for dowels
+A class for connecting beams with a 90 Lap joint
 
 .. code-block :: python
 
-    dowel_plane  = rg.Plane.WorldXY # the plane to define a dowel's position and orientation
-    dowel_radius = 1.0 # the radius of a dowel
+    #list of face_ids of coplanar planes 
+    coplanar_face_ids = []
+    coplanar_face_ids.append(face_id)
+    for key,value in face_ids_coplanar_planes.items():
+        if key == ""+str(face_id):
+            coplanar_face_ids.extend(value)
 
-    # instanciate from plane
-    dowel_plane = rg.Plane.WorldXY
-    dowel = Dowel(base_plane=dowel_plane, dowel_radius=1.0)
+    #project points
+    projected_point_list = []
+    new_start_point = project_points_plane([start_point],start_beam_perpendicular_plane)
+    projected_point_list.extend(new_start_point)
+    for plane in perpendicular_plane:
+       new_point = project_points_plane(new_start_point,plane)
+       projected_point_list.extend(new_point)
 
-    # OR
+    
+    #list of distance to move joints on match beam    
+    model.rule_Connect_90lap(selected_beams,projected_point_list,coplanar_face_ids,beam_length,ext_len,create_id())
 
-    # instanciate from line
-    dowel_line = rg.Line(rg.Point3d(0, 0, -30), rg.Point3d(0, 0, 30))
-    dowel = Dowel(line=dowel_line, dowel_radius=1.0)
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/connect_beam.png
 
-    # add a dowel to the beam (possible if the beam has been declared before)
-    beam.add_dowel(dowel)
 
 
 Hole Class
