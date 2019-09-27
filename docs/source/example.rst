@@ -50,29 +50,36 @@ How to Use
         artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
         artist.draw_faces(join_faces=True)
 
-.. image:: https://raw.githubusercontent.com/ytakzk/Gradual_Assemblies/master/docs/source/_static/example_grasshopper.PNG
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create beam.png
 
 
-Beam Class
---------------------
+rule 90 Lap
+-----------
 
-A class for beams
+A class 90 Lap joint rule 
 
 .. code-block :: python
 
-    beam_plane = rg.Plane.WorldXY # the plane to define a beam's position and orientation
-    beam_dx    = 145 # the length of a beam
-    beam_dy    = 10 # the width of a beam
-    beam_dz    = 4 # the depth of a beam
+    #find beam instance by name search from model data
+    selected_beam = None
+    for beam in model.beams:
+        if(beam.name == selected_beam_name):
+            selected_beam = beam
+            break
+    assert (selected_beam != None)
 
-    # instanciate
-    beam = Beam(base_plane=beam_plane,
-                dx=beam_dx,
-                dy=beam_dy,
-                dz=beam_dz)
+    #values
+    face_id = 4
+    joint_point = Point(100,0,0)
+    ext_start = 500
+    ext_end = 1000
+    name = create_id() 
     
-    # get a brep of the beam (can be used for visualization or debug)
-    brep = beam.brep_representation()
+    #adding joints to selected Beam 
+    joint_distance_from_start = selected_beam.Get_distancefromBeamYZFrame(joint_point)
+    match_beam_origin =  model.rule_90lap(selected_beam,joint_distance_from_start,face_id,ext_start,ext_end,name) 
+     
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create beam.png
 
 
 Dowel Class
