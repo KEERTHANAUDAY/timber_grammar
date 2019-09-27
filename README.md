@@ -1,6 +1,9 @@
 # timber_grammar
 Shape grammar implementation for timber to timber connections
 
+Documentation is available on [Timber_Grammar’s documentation](https://timber-grammar.readthedocs.io/en/latest).
+
+
 # Environment Setup Instruction:
 
 To set up a new environment with the necessary dependency, use Anaconda Prompt with Admin Rights:
