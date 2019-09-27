@@ -84,6 +84,8 @@ class Beam(object):
     
     @data.setter
     def data(self, data):
+        """ data setter for data dictionary
+        """
         self.frame      = None
         if (data.get('frame') is not None): self.frame = compas.geometry.Frame.from_data(data.get('frame'))
         self.length      = data.get('length') or None
@@ -229,6 +231,12 @@ class Beam(object):
         return dist
 
     def center_point_at_beam_start(self):
+        """Computes the centroid of a beam
+        ----------
+        Return:
+        ------
+        point[list]
+        """
         return self.frame.represent_point_in_global_coordinates([0,self.width/2,self.height/2])
 
     # Here we compute the face_frame of the beam
@@ -256,6 +264,14 @@ class Beam(object):
             raise IndexError('face_id index out of range')
 
     def face_plane(self,plane_id):
+        """Computes the plane of each face of a beam
+        ----------
+        plane_id: (int) ID of plane
+
+        Return:
+        ------
+        compas plane 
+        """
 
         origin_frame = self.frame.copy()
         if plane_id == 0:
@@ -288,6 +304,14 @@ class Beam(object):
         return plane
 
     def neighbour_face_plane(self,plane_id):
+        """Computes the adjacent planes of a plane
+        ----------
+        plane_id: (int) ID of plane
+
+        Return:
+        ------
+        compas plane 
+        """
         if plane_id == 1:
             return [self.face_plane(2),self.face_plane(4)]
         if plane_id == 2:
@@ -310,11 +334,11 @@ class Beam(object):
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         return box_mesh
 
-    def draw_cut_match_mesh(self,match_beam_mesh):
+    # def draw_cut_match_mesh(self,match_beam_mesh):
 
-        for joint in self.joints:
-            self.mesh = self.trimesh_proxy_subtract(match_beam_mesh,joint.mesh)
-        return self.mesh
+    #     for joint in self.joints:
+    #         self.mesh = self.trimesh_proxy_subtract(match_beam_mesh,joint.mesh)
+    #     return self.mesh
 
     @classmethod #hence does not rely on the instance of the Beam class, inout of the type is enough
     def trimesh_proxy_subtract(cls,mesh_a,mesh_b):
@@ -350,22 +374,22 @@ class Beam(object):
         #     result_mesh = Mesh.from_data(result['value'])
         # return result_mesh
 
-    @classmethod
-    def debug_get_dummy_beam(cls, include_joint=False):
-        from compas.geometry._primitives import Frame
-        from compas.geometry._primitives import Point
-        from compas.geometry._primitives import Vector
-        from Joint_90lap import Joint_90lap
-        #Create Beam object
-        beam = cls(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,"dummy_beam_1")
-        #Create Joint object
-        if (include_joint):
-            beam.joints.append(Joint_90lap(100,3,100,100,50))
-            #Update mesh - Boolean the joints from Mesh
-            beam.joints[0].update_joint_mesh(beam)
+    # @classmethod
+    # def debug_get_dummy_beam(cls, include_joint=False):
+    #     from compas.geometry._primitives import Frame
+    #     from compas.geometry._primitives import Point
+    #     from compas.geometry._primitives import Vector
+    #     from Joint_90lap import Joint_90lap
+    #     #Create Beam object
+    #     beam = cls(Frame(Point(0, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1)),1000,100,150,"dummy_beam_1")
+    #     #Create Joint object
+    #     if (include_joint):
+    #         beam.joints.append(Joint_90lap(100,3,100,100,50))
+    #         #Update mesh - Boolean the joints from Mesh
+    #         beam.joints[0].update_joint_mesh(beam)
         
-        beam.update_mesh() 
-        return beam
+    #     beam.update_mesh() 
+    #     return beam
 
 
         

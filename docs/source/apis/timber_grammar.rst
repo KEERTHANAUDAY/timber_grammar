@@ -1,6 +1,15 @@
 timber_grammar package
 ======================
 
+timber_grammar Joint module
+---------------------------
+
+.. automodule:: timber_grammar.Joint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+    
 timber_grammar Beam module
 --------------------------
 
@@ -9,13 +18,6 @@ timber_grammar Beam module
     :undoc-members:
     :show-inheritance:
 
-timber_grammar Joint module
----------------------------
-
-.. automodule:: timber_grammar.Joint
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 timber_grammar assembly_model module
 ------------------------------------
