@@ -187,7 +187,7 @@ class Beam(object):
 
     #Here is where the functions of the class begins
     def update_mesh(self):
-        '''Computes the beam geometry with boolean difference of all joints.
+        """Computes the beam geometry with boolean difference of all joints.
 
         Returns
         -------
@@ -197,7 +197,7 @@ class Beam(object):
         Note
         ----------
         self.mesh is updated.
-        '''
+        """
  
         meshes = []
         #First mesh in the list is the uncut beam mesh
@@ -322,14 +322,14 @@ class Beam(object):
             return [self.face_plane(1),self.face_plane(3)]
 
     def draw_uncut_mesh(self):
-        '''Computes and returns the beam geometry.
+        """Computes and returns the beam geometry.
 
         Returns
         -------
         compas.datastructures.Mesh
         The beam mesh without joint geoemtry
 
-        '''
+        """
         box = Box(self.frame, self.length,self.width,self.height)
         box_mesh = Mesh.from_vertices_and_faces(box.vertices, box.faces) 
         return box_mesh
@@ -342,13 +342,13 @@ class Beam(object):
 
     @classmethod #hence does not rely on the instance of the Beam class, inout of the type is enough
     def trimesh_proxy_subtract(cls,mesh_a,mesh_b):
-        '''Computes boolean through trimesh by calling compas proxy.
+        """Computes boolean through trimesh by calling compas proxy.
 
         Returns
         -------
         compas.datastructures.Mesh
 
-        '''
+        """
         # with Proxy(package='Trimesh_proxy',python=python_exe_path) as f:
         with Proxy(package='timber_grammar.Trimesh_proxy',python=python_exe_path) as f:
             result = f.trimesh_subtract(mesh_a, mesh_b)
@@ -357,13 +357,13 @@ class Beam(object):
 
     @classmethod #hence does not rely on the instance of the Beam class, inout of the type is enough
     def trimesh_proxy_subtract_multiple(cls,meshes):
-        '''Computes boolean through trimesh by calling compas proxy.
+        """Computes boolean through trimesh by calling compas proxy.
 
         Returns
         -------
         compas.datastructures.Mesh
 
-        '''
+        """
         with Proxy(package='timber_grammar.Trimesh_proxy',python=python_exe_path) as f:
             result = f.trimesh_subtract_multiple(meshes)
             result_mesh = Mesh.from_data(result['value'])
@@ -393,57 +393,57 @@ class Beam(object):
 
 
         
-if __name__ == '__main__':
-    import compas
-    import tempfile
-    import os
+# if __name__ == '__main__':
+#     import compas
+#     import tempfile
+#     import os
 
-    #Test 1 : Beam data to be saved and loaded and the two should be the same.
-    beam = Beam.debug_get_dummy_beam()
+#     #Test 1 : Beam data to be saved and loaded and the two should be the same.
+#     beam = Beam.debug_get_dummy_beam()
 
-    print("Test 1: Beam Data Save and Load to JSON")
+#     print("Test 1: Beam Data Save and Load to JSON")
 
-    #Save Beam to Json
-    beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
+#     #Save Beam to Json
+#     beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
     
-    #Load saved Beam Object
-    loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
+#     #Load saved Beam Object
+#     loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
 
-    #Assert that the two beam objects are different objects
-    assert (beam is not loaded_beam)
+#     #Assert that the two beam objects are different objects
+#     assert (beam is not loaded_beam)
 
-    print("Test 1: Comparing two beam data dictionary:")
-    assert (beam.data == loaded_beam.data)
-    if (beam.data == loaded_beam.data):
-        print("Correct") 
-    else:
-        print("Incorrect")
+#     print("Test 1: Comparing two beam data dictionary:")
+#     assert (beam.data == loaded_beam.data)
+#     if (beam.data == loaded_beam.data):
+#         print("Correct") 
+#     else:
+#         print("Incorrect")
         
-    print("-- -- -- -- -- -- -- --")
+#     print("-- -- -- -- -- -- -- --")
 
   
-    #Test 2 : Beam with Joint data attached and saved and loaded.
-    print("Test 2: Beam with Joint Data Attached")
+#     #Test 2 : Beam with Joint data attached and saved and loaded.
+#     print("Test 2: Beam with Joint Data Attached")
 
-    #Create some joints on the beam
-    beam = Beam.debug_get_dummy_beam(include_joint=True)
+#     #Create some joints on the beam
+#     beam = Beam.debug_get_dummy_beam(include_joint=True)
 
-    #Save Beam with the appended Joint to Json
-    beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
+#     #Save Beam with the appended Joint to Json
+#     beam.to_json(os.path.join(tempfile.gettempdir(), "beam.json"),pretty=True)
     
-    #Load the saved Beam
-    loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
+#     #Load the saved Beam
+#     loaded_beam = Beam.from_json(os.path.join(tempfile.gettempdir(), "beam.json"))
 
-    print("Test 2: Comparing two beam data dictionary:")
-    assert (beam.data == loaded_beam.data)
-    if (beam.data == loaded_beam.data):
-        print("Correct") 
-    else:
-        print("Incorrect")
+#     print("Test 2: Comparing two beam data dictionary:")
+#     assert (beam.data == loaded_beam.data)
+#     if (beam.data == loaded_beam.data):
+#         print("Correct") 
+#     else:
+#         print("Incorrect")
 
-    print("-- -- -- -- -- -- -- --")
+#     print("-- -- -- -- -- -- -- --")
 
-    print("Test 3: Print out dummy beam (with Joint) data")
-    print (beam.data)
+#     print("Test 3: Print out dummy beam (with Joint) data")
+#     print (beam.data)
 
-    print("-- -- -- -- -- -- -- --")
+#     print("-- -- -- -- -- -- -- --")
