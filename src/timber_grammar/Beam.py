@@ -28,9 +28,6 @@ python_exe_path = None
 #python_exe_path = "C:\\Users\\ukeer\\Anaconda3\\envs\\thesis\\python.exe" #sys.executable
 
 class Beam(object):
-    """ Beam class creates beams and performs booleans(called through tri
-    mesh proxy)
-    """
 
     def __init__(self, frame, length, width, height, name ):
         """ initialization

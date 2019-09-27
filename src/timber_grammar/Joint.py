@@ -1,3 +1,12 @@
+#
+# Basic classes for timber_grammar
+#
+
+__author__ = "masdfab thesis timber_grammar"
+__status__ = "development"
+__version__ = "0.0.1"
+__date__    = "15 August 2019"
+
 import json
 
 class Joint(object):
@@ -29,7 +38,7 @@ class Joint(object):
 
         This constructor method is meant to be used in conjuction with the
         corresponding *to_data* method.
-        
+
         """
         
         #Remember to update this list of import for each new classes that are inhereted from this super class

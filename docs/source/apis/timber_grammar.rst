@@ -1,7 +1,7 @@
 timber_grammar package
 ======================
 
-timber_grammar.Beam module
+timber_grammar Beam module
 --------------------------
 
 .. automodule:: timber_grammar.Beam
@@ -9,7 +9,7 @@ timber_grammar.Beam module
     :undoc-members:
     :show-inheritance:
 
-timber_grammar.Joint module
+timber_grammar Joint module
 ---------------------------
 
 .. automodule:: timber_grammar.Joint
@@ -17,7 +17,7 @@ timber_grammar.Joint module
     :undoc-members:
     :show-inheritance:
 
-timber_grammar.assembly_model module
+timber_grammar assembly_model module
 ------------------------------------
 
 .. timber_grammar.assembly_model
@@ -25,7 +25,7 @@ timber_grammar.assembly_model module
     :undoc-members:
     :show-inheritance:
 
-timber_grammar.Derivation module
+timber_grammar Derivation module
 ---------------------------
 
 .. automodule:: timber_grammar.Derivation
