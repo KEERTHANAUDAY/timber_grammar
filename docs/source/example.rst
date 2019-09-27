@@ -13,7 +13,7 @@ compas Frame: frame, x-axis: length, y-axis: width, z-axis: height
 
 
 How to Use
---------------------
+----------
 
 .. code-block :: python
 
