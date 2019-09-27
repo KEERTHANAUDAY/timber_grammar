@@ -9,7 +9,7 @@ Create Beam
 compas Frame: frame, x-axis: length, y-axis: width, z-axis: height
 
 
-.. image:: https://raw.githubusercontent.com/ytakzk/Gradual_Assemblies/master/docs/source/_static/plane_orientation.png
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/create_beam.png
 
 
 How to Use
@@ -112,51 +112,29 @@ A class for connecting beams with a 90 Lap joint
 
 
 
-Hole Class
---------------------
+Derivation class
+----------------
 
-A class for making planes to open holes in beams
-
-.. code-block :: python
-
-    # contain beams as array
-    beams = [beam_1, beam_2]
-
-    # returns four kinds of data trees
-    #
-    # 1st: safe planes to drill
-    # 2nd: planes to start drilling
-    # 3rd: planes to end drilling
-    # 4th: breps of beams in each state of drilling
-
-    safe_planes, top_planes, bottom_planes, beam_breps = Hole.get_tool_planes_as_tree(beams,
-        safe_plane_diff=100)
-
-
-Evaluation Functions
------------------------
-
-Beam and Dowel class have some useful functions to identify the problematic dowel connection.
-
-
-**Beam Class**	
+A class for rule derivation history 
 
 .. code-block :: python
 
-    # get angles in radian between the beam and its connected dowels as list.
-    angles = beam.get_angle_between_beam_and_dowel()
+    #load Derivation and delete last step
+    derivation = Derivation.from_json(rhino_UI_utilities.get_json_file_location())
 
-    # get distances between the beam's edge and its connected dowels as list.
-    # if the dowel locates totally outside of the beam, it returns a negative value.
-    distances = beam.get_distance_from_edges()
+    continue_playback = True
+    step_id = 0 
+    while(continue_playback):
+        #ask user for which step they would like to see
+        derivation_last_step_index = derivation.count - 1
+        
+        step_id = rs.GetInteger("Enter which step to visualize (0 - "+ str(derivation_last_step_index) + " step) (Enter -1 for last step)", step_id, -1, derivation_last_step_index)
+        if (step_id == -1): step_id = derivation_last_step_index
+        if (step_id == None): break # Allow user to quite the command
 
-**Dowel Class**	
+        #load the selected model
+        model = derivation.get_step(step_id)
+        step_id = step_id + 1
 
-.. code-block :: python
+.. image:: https://raw.githubusercontent.com/KEERTHANAUDAY/timber_grammar/master/docs/source/_static/connect_beam.png
 
-    # get an maximum angle in radian between the dowel and its connected beams.
-    angle = dowel.get_angle_between_beam_and_dowel()
-
-    # get minimum distance between the dowel and its connected beams' edge.
-    # if the dowel locates totally outside of the beam, it returns a negative value.
-    distance = dowel.get_distance_from_edges()
