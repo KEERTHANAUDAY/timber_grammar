@@ -1,16 +1,13 @@
 Examples
 ================
 
-Plane Orientation
---------------------
+Create Beam
+-----------
 
 **Beam**
 
-x-axis: length, y-axis: width, z-axis: height
+compas Frame: frame, x-axis: length, y-axis: width, z-axis: height
 
-**Dowel**
-
-z-axis: length
 
 .. image:: https://raw.githubusercontent.com/ytakzk/Gradual_Assemblies/master/docs/source/_static/plane_orientation.png
 
@@ -21,57 +18,37 @@ How to Use
 .. code-block :: python
 
     # import libraries
-    import Rhino.Geometry as rg
-    from geometry.beam import Beam
-    from geometry.dowel import Dowel
-    from geometry.hole import Hole
+    import compas
+    from compas.geometry import Frame
+    from timber_grammar.assembly_model import model 
+    from timber_grammar.id_generator import create_id
+    from timber_grammar import rhino_UI_utilities import utils
+
+    print("Test 1: Create beam and save and load model to JSON")
+
+    #Load Derivation and model
+    derivation = Derivation.from_json(rhino_UI_utilities.get_json_file_location())
+    model = derivation.get_next_step()
 
     # dimensions
-    beam_dx = 145
-    beam_dy = 10
-    beam_dz = 4
-    dowel_radius = 1.0
+    frame = Frame.worldXY()
+    length = 1000
+    width = 100
+    height = 100
+    name = create_id()
 
     # create beams as planes
-    beam_plane_1 = rg.Plane(rg.Plane.WorldXY)
-    beam_plane_1.Translate(rg.Vector3d(100, 100, 0))
+    model.rule_create_beam(frame,length,width,height,name)
 
-    beam_plane_2 = rg.Plane(rg.Plane.WorldXY)
-    beam_plane_2.Translate(rg.Vector3d(100, 100, 50))
+    #save Derivation 
+    derivation.to_json(rhino_UI_utilities.get_json_file_location(), pretty = True)
 
-    beam_planes = [beam_plane_1, beam_plane_2]
-
-    # create dowels as planes
-    dowel_plane_1 = rg.Plane(rg.Plane.WorldXY)
-    dowel_plane_1.Translate(rg.Vector3d(140, 100, 0))
-    dowel_plane_2 = rg.Plane(rg.Plane.WorldXY)
-    dowel_plane_2.Translate(rg.Vector3d(60, 100, 0))
-
-    # create an instance of dowel class as the connected dowel connected
-    dowel_1 = Dowel(base_plane=dowel_plane_1, dowel_radius=dowel_radius)
-    dowel_2 = Dowel(base_plane=dowel_plane_2, dowel_radius=dowel_radius)
-
-    dowels = [dowel_1, dowel_2]
-
-    beams = []
-
-    # feed beam planes
-    for beam_plane in beam_planes:
-
-        # create an instance of beam class
-        beam = Beam(base_plane=beam_plane, dx=beam_dx, dy=beam_dy, dz=beam_dz)
-
-        for dowel in dowels:
-
-            # add a dowel to the beam as its connection
-            beam.add_dowel(dowel)
-
-        beams.append(beam)
-
-    original_beam_breps = [b.brep_representation() for b in beams]
-
-    # get planes and brep(s)
-    safe_planes, top_planes, bottom_planes, beam_breps = Hole.get_tool_planes_as_tree(beams, target_plane=rg.Plane.WorldXY, safe_buffer=2, safe_plane_diff=100)
+    # Visualization
+    artist = MeshArtist(None, layer ='BEAM::Beams_out')
+    artist.clear_layer()
+    for beam in model.beams:
+        artist = MeshArtist(beam.mesh, layer ='BEAM::Beams_out')#.mesh is not ideal fix in beam and assemble class
+        artist.draw_faces(join_faces=True)
 
 .. image:: https://raw.githubusercontent.com/ytakzk/Gradual_Assemblies/master/docs/source/_static/example_grasshopper.PNG
 
